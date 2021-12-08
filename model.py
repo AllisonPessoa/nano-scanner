@@ -18,16 +18,19 @@ import counter
 from PyQt5 import QtWidgets, QtCore
 import pickle
 
+from logging_setup import getLogger
+logger = getLogger()
+
 class Model(QtCore.QObject):
 
     def __init__(self, piezoParams, scanParams):
         super(Model, self).__init__()
         ### POSITIONING ###
-        self.posRel={"X": 0, "Y": 0,
-                     "Xindex": 0, 'Yindex': 0}
+        self.pos={"X": 0, "Y": 0,
+                  "Xindex": 0, 'Yindex': 0}
         
         self.posAbs={"X": 0, "Y": 0}
-        self.relMoveLocker = True    
+        self.relMoveLocker = True  
         
         self.setScanParams(scanParams)
         self.dataHandler = None
@@ -73,8 +76,10 @@ class Model(QtCore.QObject):
         
         self.scanCenter = {'X': parameters["Xcenter"],
                            'Y': parameters["Ycenter"]}
+        logger.info("Scan Parameters changed")
         
-    def startScan(self, mode):     
+    def startScan(self, mode):
+        logger.info("Scan Started")
         scanPath, indexScanPath = self._calculateSteps() ##Calculate previously the scan path
         totalScanLen = self.scanNumSteps['X']*self.scanNumSteps['Y']
         
@@ -95,10 +100,11 @@ class Model(QtCore.QObject):
                 except Exception as erro:
                     errorMessage = erro.args[0]
                     self.emitError.emit('Error on acquiring data: '+str(errorMessage))
+                    logger.exception("Error on acquiring data")
                     break
                 
                 #Update scan position
-                self.drivePiezo(pos)
+                self.drivePiezo(pos, saveSecurity=False)
                 self.emitProgress.emit((index/totalScanLen)*100)
             else:
                 break
@@ -112,7 +118,8 @@ class Model(QtCore.QObject):
         
     def finishScan(self):
         self.emitFinished.emit()
-    
+        logger.info("Scan finished")
+        
     def _calculateSteps(self):
         path = [{'X': self.scanCenter['X'] -  self.scanRange['X']/2,
                  'Y': self.scanCenter['X'] -  self.scanRange['Y']/2}]
@@ -147,11 +154,11 @@ class Model(QtCore.QObject):
         return path, indexPath
     
     def atualizeInterfacePos(self):
-        self.emitRelPos.emit(self.getRelPosition())
+        self.emitRelPos.emit(self.getPosition())
         if self.dataHandler is not None:
             try:
-                curveData = self.dataHandler.getCurveData((self.posRel['Xindex'],\
-                                                           self.posRel['Yindex']))
+                curveData = self.dataHandler.getCurveData((self.pos['Xindex'],\
+                                                           self.pos['Yindex']))
                 if curveData is not None:
                     self.emitCurveData.emit(curveData)
             except Exception as erro:
@@ -160,64 +167,73 @@ class Model(QtCore.QObject):
         else:
             pass
         
-    ### RELATIVE MOVEMENT
+    ### POSITION
     
-    def getRelPosition(self):
-        return self.posRel
+    def getPosition(self):
+        return self.pos
     
-    def setRelPosition(self, pos):
-        self.posRel['X'] = self._roundToAxis(pos['X'], self.scanStepSize['X'])
-        self.posRel['Y'] = self._roundToAxis(pos['Y'], self.scanStepSize['Y'])
-        self.posRel['Xindex'] = int(self.posRel['X']/self.scanStepSize['X'])
-        self.posRel['Yindex'] = int(self.posRel['Y']/self.scanStepSize['Y'])
+    def setPosition(self, pos):
+        self.pos['X'] = self._roundToAxis(pos['X'], self.scanStepSize['X'])
+        self.pos['Y'] = self._roundToAxis(pos['Y'], self.scanStepSize['Y'])
+        self.pos['Xindex'] = int(self.pos['X']/self.scanStepSize['X'])
+        self.pos['Yindex'] = int(self.pos['Y']/self.scanStepSize['Y'])
+        logger.info("Move pointer to x: %f, y: %f", \
+            self.pos['X'], self.pos['X'])
         
         self.atualizeInterfacePos()
         if self.relMoveLocker == False:
-            self.drivePiezo(self.posRel)
+            self.drivePiezo(self.pos)
         
-    def drivePiezo(self, pos):
-        self.piezo.moveSample(pos)
+    def drivePiezo(self, pos, saveSecurity=True):
+        self.piezo.moveSample(pos, save=saveSecurity)
         voltX, voltY = self.piezo.getVoltage()
         self.emitVoltageStatus.emit(voltX, voltY)
         
     def moveUp(self):
-        curPos = self.getRelPosition()
+        curPos = self.getPosition()
         newPos = {'X': curPos['X'],
                   'Y': curPos['Y'] + self.scanStepSize['Y']}
-        self.setRelPosition(newPos)
+        self.setPosition(newPos)
     
     def moveDown(self):
-        curPos = self.getRelPosition()
+        curPos = self.getPosition()
         newPos = {'X': curPos['X'],
                   'Y': curPos['Y'] - self.scanStepSize['Y']}
-        self.setRelPosition(newPos)
+        self.setPosition(newPos)
         
     def moveLeft(self):
-        curPos = self.getRelPosition()
+        curPos = self.getPosition()
         newPos = {'X': curPos['X'] - self.scanStepSize['X'],
                   'Y': curPos['Y']}
-        self.setRelPosition(newPos)
+        self.setPosition(newPos)
         
     def moveRight(self):
-        curPos = self.getRelPosition()
+        curPos = self.getPosition()
         newPos = {'X': curPos['X'] + self.scanStepSize['X'],
                   'Y': curPos['Y']}
-        self.setRelPosition(newPos)
+        self.setPosition(newPos)
     
     def moveCenter(self, posCenter):
         self.scanCenter = posCenter
+        self.drivePiezo(self.scanCenter)
         self.emitCenterPos.emit(self.scanCenter)
      
     def setScanCenter(self):
         """Sets the relative position as the new absolute position to the next scan"""
-        NewCenterPos = self.posRel
+        NewCenterPos = {}
+        NewCenterPos['X'] = self.pos['X']
+        NewCenterPos['Y'] = self.pos['Y']
+        
         if (NewCenterPos['X'] >= self.scanRange['X']/2) \
             and (NewCenterPos['Y'] >= self.scanRange['Y']/2):
             self.moveCenter(NewCenterPos)
-            # Emit Message: return ('Center set')
+            logger.info("Center Set to x: %f, y: %f", \
+                        NewCenterPos['X'], NewCenterPos['Y'])
         else:
-            self.emitError.emit('The scan size will extrapolate the piezo limits')
-    
+            message = "The scan size will extrapolate the piezo limits"
+            self.emitError.emit(message)
+            logger.error(message)
+                
     # GENERAL
     def saveFile(self, filename, addText):
         """When the 'Save' pushButton is pressed, or 'Ctrl + S': 

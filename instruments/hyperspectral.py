@@ -15,17 +15,22 @@ import os
 import sys
 import time
 
+from logging_setup import getLogger
+logger = getLogger()
+
 class Hyperspectral(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         loadUi("instruments\hyper_layout.ui", self)
         self.fileName = r'C:\Users\Nano2\Desktop\Allison\Microscopia Hiperespectral\files\espectro.fits'
         self.flagName = r'C:\Users\Nano2\Desktop\Allison\Microscopia Hiperespectral\files\flag.fits'
-    
+        logger.info("Hyperspectral Started")
+        
     def setDataParams(self, Xdim, Ydim, nElem):
         self.dim = (Xdim,Ydim)
         dt = np.dtype((np.float32, nElem))
         self.hyperData = np.zeros(self.dim, dtype = dt)
+        logger.info("Hyperspectral got data params")
         
     def setScanIndexPath(self, scanIndexPath):
         #scanIndexPath : List of tuples representing the scan current index position
@@ -45,7 +50,7 @@ class Hyperspectral(QtWidgets.QWidget):
         return self.hyperData[indexPos[0], indexPos[1]]
     
     def close(self):
-        print("Hyperspectral Closed")
+        logger.info("Hyperspectral closed")
     
     ### --------
     

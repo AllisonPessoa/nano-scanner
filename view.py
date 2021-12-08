@@ -9,7 +9,7 @@ Interface the instruments, graphics, and the Worker Thread.
 #Interface
 from PyQt5 import QtCore, QtWidgets, uic
 from PyQt5.QtGui import QKeySequence
-layout_form = uic.loadUiType("layout2.ui")[0]
+layout_form = uic.loadUiType("layout.ui")[0]
 
 # Graphics
 import pyqtgraph as pg
@@ -26,6 +26,8 @@ import errorBox
 
 #Controller
 import controller
+import logging_setup
+logger = logging_setup.getLogger()
 
 class View(QtWidgets.QMainWindow, layout_form):
     """Implements  the apps' GUI by hosting all widgets needed to interact
@@ -37,7 +39,13 @@ class View(QtWidgets.QMainWindow, layout_form):
         #Auxiliar Dialogs
         self.piezoDlg = piezo_dialog.PiezoDialog()
         self.errorBoxAlternative = errorBox.errorBoxAlternative
-    
+        
+        ### STATUSBAR ###
+        self.statusBar =QtWidgets.QStatusBar()
+        self.setStatusBar(self.statusBar)
+        self.statusBar.showMessage("Welcome!")
+        logger.info("Starting GUI")
+        
         ### GRAPHICS ###
         self.startCurvePlot()
         self.startImagePlot()
@@ -54,11 +62,6 @@ class View(QtWidgets.QMainWindow, layout_form):
         self.down_shortcut = QtWidgets.QShortcut(QKeySequence("Down"), self)
         self.left_shortcut = QtWidgets.QShortcut(QKeySequence("Left"), self)
         self.right_shortcut = QtWidgets.QShortcut(QKeySequence("Right"), self)
-        
-        ### STATUSBAR ###
-        self.statusBar =QtWidgets.QStatusBar()
-        self.setStatusBar(self.statusBar)
-        self.statusBar.showMessage("Welcome!")
 
     
     ### LOCK / UNLOCK METHODS ###
@@ -67,10 +70,6 @@ class View(QtWidgets.QMainWindow, layout_form):
         Absolute Position Control, depending on the state of 'Lock' checkbox"""
         self.currentXAbsolutSpinBox.setDisabled(disable)
         self.currentYAbsolutMSpinBox.setDisabled(disable)
-
-    
-    def unlockRelPosition(self, disable):
-        pass
     
     def lockInterface(self, disabled = False):
         """Locks/unlocks interface when the measurement routine start/stop"""
@@ -124,7 +123,7 @@ class View(QtWidgets.QMainWindow, layout_form):
         self.currentYAbsolutMSpinBox.setValue(pos['Y'])
         
         self.updateScanLimits()
-        
+
     #Relative Positioning
     def updateRelPos(self, pos):
         """Change the Relative Positioning Control system
@@ -189,8 +188,13 @@ class View(QtWidgets.QMainWindow, layout_form):
         self.label_xStepSize.setText('X Step Size: %.2f nm'%params["XstepSize"])
         self.label_yStepSize.setText('Y Step Size: %.2f nm'%params["YstepSize"])
         
+        self.vanishImage(params['nXsteps'], params['nYsteps'])
         self.updateImageLimits(params)
+        
         self.updateMapRect(params)
+        
+        self.statusBar.showMessage("Limits Updated")
+        logger.info("Scan Limits Updated")
         
     def startScan(self):
         self.lockInterface(True)
@@ -278,13 +282,15 @@ class View(QtWidgets.QMainWindow, layout_form):
                                params["Ycenter"]-params["Yrange"]/2,\
                                params["Xrange"],\
                                params["Yrange"])
-    
+
     def updateImageData(self, imageData):
         self.colorBar.setLevels((np.amin(imageData), np.amax(imageData)))
         self.imagePlot.setImage(imageData)
         
         QtWidgets.QApplication.processEvents()
-        
+    
+    def vanishImage(self, xSteps, ySteps):
+        self.imagePlot.setImage(np.zeros((xSteps, ySteps)))
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)

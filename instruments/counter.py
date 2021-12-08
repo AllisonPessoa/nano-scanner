@@ -14,6 +14,9 @@ from PyQt5.uic import loadUi
 from PyQt5 import QtWidgets
 import sys
 
+from logging_setup import getLogger
+logger = getLogger()
+
 class Counter(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -24,13 +27,17 @@ class Counter(QtWidgets.QWidget):
             self.task.ai_channels.add_ai_voltage_chan("Dev1/ai1")
             self.task.start()
             self.label_deviceStatus.setText("Connected.")
+            logger.info("Counter Started")
+            
         except Exception as erro:
             self.label_deviceStatus.setText("Disconnected."+erro[0])
+            logger.exception("Error on starting Piezo")
             
     def setDataParams(self, Xdim, Ydim, nElem):
         self.dim = (Xdim,Ydim)
         self.imageMap = np.zeros(self.dim)
         self.counterBuffer = deque([],maxlen=100)
+        logger.info("Counter got data params")
         
     def setScanIndexPath(self, scanIndexPath):
         #scanIndexPath : List of tuples representing the scan current index position
@@ -53,7 +60,7 @@ class Counter(QtWidgets.QWidget):
     def close(self):
         self.task.stop()
         self.task.close()
-        print("APD Counter Closed")
+        logger.info("Counter Closed")
     
     ### -------
     def _setPixelData(self, pos, value):

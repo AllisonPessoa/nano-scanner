@@ -11,6 +11,9 @@ from PyQt5 import QtCore
 
 import model
 
+from logging_setup import getLogger
+logger = getLogger()
+
 class Controller():
     """Connects the model and the view. User events are sent to the controller,
     which puts the model to work."""
@@ -114,10 +117,12 @@ class Controller():
             self._view.startScan()
             self.executionThread.started.connect(lambda: self._model.startScan(mode))
             self.executionThread.start()
+            
         else:
             self._model.scanAbort = True
             #TIME
             self.finishScan()
+            logger.info("Scan Aborted")
         
     def finishScan(self):
         self.executionThread.quit()
@@ -141,23 +146,24 @@ class Controller():
     def unlockRelPosition(self):
         locked = self._view.checkBox_lockSampleMove.isChecked()
         self._model.relMoveLocker = locked
-        self._model.setRelPosition(self._model.getRelPosition())
+        self._model.setPosition(self._model.getPosition())
         
     def moveByClick(self, mouseClickEvent):
         vb = self._view.plotItem.vb
         point = vb.mapToView(mouseClickEvent.pos())
         pos = {'X': point.x(), 'Y': point.y()}
-        self._model.setRelPosition(pos)
+        self._model.setPosition(pos)
     
     def moveBySpin(self):
         pos = {'X': self._view.currentXPositionSpinBox.value(),
                'Y': self._view.currentYPositionMSpinBox.value()}
-        self._model.setRelPosition(pos)
+        self._model.setPosition(pos)
     
     def moveCenter(self):
         centerPos = {'X': self._view.currentXAbsolutSpinBox.value(),
                      'Y': self._view.currentYAbsolutMSpinBox.value()}
         self._model.moveCenter(centerPos)
+        self._view.updateScanLimits()
     
     def updatePiezoProperties(self):
         piezoParams = self._view.piezoDlg.getParameters()

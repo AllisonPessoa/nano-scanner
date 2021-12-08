@@ -7,6 +7,8 @@ Created on Mon Nov 15 15:25:12 2021
 """
 
 import nidaqmx
+from logging_setup import getLogger
+logger = getLogger()
 
 class PiezoCommunication():
     """DAQ Communication"""
@@ -17,7 +19,7 @@ class PiezoCommunication():
         self.finalVoltage = {'X': 0,
                              'Y': 0}
         
-        self.setPrevVoltage_security()
+        self._setPrevVoltage_security()
         self.updateCalibrParams(piezoParams)
         #Starting communication
         try:
@@ -28,9 +30,10 @@ class PiezoCommunication():
             self.taskY = nidaqmx.Task()
             self.taskY.ao_channels.add_ao_voltage_chan("Dev1/ao1")
             self.taskY.start()
+            logger.info("Piezo started")
             
-        except Exception as erro:
-           print("Disconnected."+erro[0])
+        except Exception:
+           logger.exception("Error on starting Piezo")
 
     def updateCalibrParams(self, parameters):
         self.minVoltage = {'X': parameters["minDoubleSpinBox_x"],
@@ -67,13 +70,15 @@ class PiezoCommunication():
         """Returns the actual voltage (float) applied to Piezo"""
         return (self.finalVoltage['X'], self.finalVoltage['Y'])
 
-    def moveSample(self, pos):#position in nm
+    def moveSample(self, pos, save=True):#position in nm
         targetPosX = pos['X']
         targetPosY = pos['Y']
         
         self.finalVoltage['X'] = targetPosX*self.conversionFactor['X']
         self.finalVoltage['Y'] = targetPosY*self.conversionFactor['Y']
-        self.saveCurVoltage_security()
+        
+        if save == True:
+            self._saveCurVoltage_security()
         
         self.fadeMove(self.taskX, self.maxVoltRate['X'],
                       self.curVoltage['X'], self.finalVoltage['X']),
@@ -83,22 +88,25 @@ class PiezoCommunication():
         
         self.curVoltage['X'] = self.finalVoltage['X']
         self.curVoltage['Y'] = self.finalVoltage['Y']
+        logger.info("Drive Piezo to x: %f, y: %f", \
+                    targetPosX, targetPosY)
 
-    def saveCurVoltage_security(self):
+    def _saveCurVoltage_security(self):
         """Saves the current final voltage into a file.
         This file will be opened when the program starts and the voltage recovered"""
         try:
             fileName = 'securityDAQvoltage.txt'
             securityFile = open(fileName, 'w')
             securityFile.write(str(self.finalVoltage['X']) +","+ \
-                               str(self.finalVoltage['X']))
+                               str(self.finalVoltage['Y']))
             securityFile.close()
+            logger.info("Security Voltage set to x: %f, y: %f", \
+                        self.finalVoltage['X'], \
+                        self.finalVoltage['Y'])
+        except Exception:
+            logger.exception("Could not save the security position")
 
-        except Exception as erro:
-            errorMessage =  str(erro.args[0])
-            print(errorMessage)
-
-    def setPrevVoltage_security(self):
+    def _setPrevVoltage_security(self):
         """Opens the security file with the finals voltages. Sets as the current voltage"""
         try:
             fileName = 'securityDAQvoltage.txt'
@@ -137,7 +145,7 @@ class PiezoCommunication():
         self.taskX.close()
         self.taskY.stop()
         self.taskY.close()
-        print("Piezo closed")
+        logger.info("Piezo Closed")
         
         
 if __name__ == "__main__":
