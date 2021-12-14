@@ -1,17 +1,15 @@
-"""
-The main class of the program: Controls all User Interface and share information between other classes.
-Interface the instruments, graphics, and the Worker Thread.
+# # -*- coding: utf-8 -*-
+# """
+# Created on July 2019
 
-=======================================================================================================
-
-"""
+# @author: Allison Pessoa
+# """
 
 #Interface
 from PyQt5 import QtCore, QtWidgets, uic
-from PyQt5.QtGui import QKeySequence
-layout_form = uic.loadUiType("layout.ui")[0]
+layout_form = uic.loadUiType("mainLayout.ui")[0]
 
-# Graphics
+#Graphics
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
 import numpy as np
@@ -19,60 +17,52 @@ import numpy as np
 #Dialogs
 import sys
 import os.path
-sys.path.append(os.path.abspath("dialogs"))
 
+sys.path.append(os.path.abspath("dialogs"))
 import piezo_dialog
 import errorBox
 
 #Controller
 import controller
+
+#Logger
 import logging_setup
 logger = logging_setup.getLogger()
 
 class View(QtWidgets.QMainWindow, layout_form):
-    """Implements  the apps' GUI by hosting all widgets needed to interact
-    with the application"""
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self,parent)
         self.setupUi(self)
         
-        #Auxiliar Dialogs
+        ### AUXILIAR DIALOGS ###
         self.piezoDlg = piezo_dialog.PiezoDialog()
         self.errorBoxAlternative = errorBox.errorBoxAlternative
-        
+
         ### STATUSBAR ###
-        self.statusBar =QtWidgets.QStatusBar()
+        self.statusBar = QtWidgets.QStatusBar()
         self.setStatusBar(self.statusBar)
         self.statusBar.showMessage("Welcome!")
-        logger.info("Starting GUI")
         
         ### GRAPHICS ###
         self.startCurvePlot()
         self.startImagePlot()
         self.startScanMap()
+        
         self.updateScanLimits()
         
-        ### SHOTCUTS ###
-        self.fileAction_open.setShortcut(QKeySequence('Ctrl+O'))
-        self.fileAction_save.setShortcut(QKeySequence('Ctrl+S'))
-        self.fileAction_exit.setShortcut(QKeySequence('Ctrl+Q'))
-        self.fileAction_exit.setShortcut(QKeySequence('F1'))
-        
-        self.up_shortcut = QtWidgets.QShortcut(QKeySequence("Up"), self)
-        self.down_shortcut = QtWidgets.QShortcut(QKeySequence("Down"), self)
-        self.left_shortcut = QtWidgets.QShortcut(QKeySequence("Left"), self)
-        self.right_shortcut = QtWidgets.QShortcut(QKeySequence("Right"), self)
-
+        logger.info("Starting GUI")
     
-    ### LOCK / UNLOCK METHODS ###
-    def unlockAbsPosition(self, disable):
-        """Activates or Deactivates the spinboxes and sliders responsible for 
-        Absolute Position Control, depending on the state of 'Lock' checkbox"""
-        self.currentXAbsolutSpinBox.setDisabled(disable)
-        self.currentYAbsolutMSpinBox.setDisabled(disable)
+    ###############################
+    ### LOCK / UNLOCK INTERFACE ###
+    ###############################
+    def unlockAbsPosition(self, disabled):
+        """Activate or Deactivate the spinboxes and sliders responsible for 
+        Center Position Control"""
+        self.currentXAbsolutSpinBox.setDisabled(disabled)
+        self.currentYAbsolutMSpinBox.setDisabled(disabled)
     
     def lockInterface(self, disabled = False):
-        """Locks/unlocks interface when the measurement routine start/stop"""
+        """Lock/Unlock most of the interface widgets"""
         self.lockedUI = disabled
         #~pushButtons
         self.pushButton_save.setDisabled(disabled)
@@ -86,7 +76,6 @@ class View(QtWidgets.QMainWindow, layout_form):
         #~Sliders
         self.horizontalSlider_curXpos.setDisabled(disabled)
         self.horizontalSlider_curYpos.setDisabled(disabled)
-
         #checkbox
         self.checkBox_lockAbsPosition.setDisabled(disabled)
     
@@ -94,17 +83,15 @@ class View(QtWidgets.QMainWindow, layout_form):
     ### GENERAL SETTERS ###
     #######################
     def errorBoxShow(self, message):
-        """Shows the error box dialog configured in errorbox.py. 
-        This method is connected by a QtSignal from the Worker Thread"""
+        """Show an error box with the message to the user"""
         self.errorBoxAlternative(message)
         
     def updateProgressBar(self, percent):
-        """Actualize the progress bar from 0% to 100%.
-        This method is connected by a QtSignal from the Worker Thread"""
+        """Actualize the progress bar with percent value"""
         self.progressBar_scan.setValue(percent)
     
     def displayVoltage(self, volt_x, volt_y):
-        """Display the voltagen on the LCD."""
+        """Display the applied voltage on the LCDs."""
         self.lcdNumber_XVoltage.display(volt_x)
         self.lcdNumber_YVoltage.display(volt_y)
 
@@ -112,28 +99,28 @@ class View(QtWidgets.QMainWindow, layout_form):
     ### POSITIONING ###
     ###################
     
-    #Absolute Positioning
+    #Center Position
     def updateCenterPos(self, pos):
-        """It is actioned by Absolute Position Control (slides or spinboxes).
-        text: 'slider' or 'spinBox'."""
+        """Update the Center Position Control widgets and Image Plot
+        - pos: dict containing 'X' and 'Y' keys"""
         self.horizontalSlider_curXabs.setValue(pos['X'])
         self.currentXAbsolutSpinBox.setValue(pos['X'])
         
         self.horizontalSlider_curYabs.setValue(pos['Y'])
         self.currentYAbsolutMSpinBox.setValue(pos['Y'])
-        
-        self.updateScanLimits()
 
-    #Relative Positioning
-    def updateRelPos(self, pos):
-        """Change the Relative Positioning Control system
-        value: position in nm"""
+    #Sample Position
+    def updatePos(self, pos):
+        """Update the Sample Position Control widgets and Image Plot
+        - pos: dict containing 'X' and 'Y' keys"""
         self.horizontalSlider_curXpos.setValue(pos['X'])
-        self.currentXPositionSpinBox.setValue(pos['X'])
-        self.crossVLine.setPos(pos['X'])
-
         self.horizontalSlider_curYpos.setValue(pos['Y'])
+
+        self.currentXPositionSpinBox.setValue(pos['X'])
         self.currentYPositionMSpinBox.setValue(pos['Y'])
+        
+        #cross line indicating the relative position
+        self.crossVLine.setPos(pos['X'])
         self.crossHLine.setPos(pos['Y'])
     
     ############
@@ -141,10 +128,13 @@ class View(QtWidgets.QMainWindow, layout_form):
     ############
     
     def defineScanModes(self, scanModes):
+        """Update the acquisition mode widgets 
+        - scanModes: dict with widget objects"""
         for names in scanModes.keys():
             self.tabWidget_modes.addTab(scanModes[names], names)
     
     def getScanParams(self):
+        """Oraganize the scan parameters in a dict and return it"""
         parameters = {
         "Xrange": self.rangeXpositionMSpinBox.value(),
         "nXsteps": self.XstepsSpinBox.value(),
@@ -161,8 +151,10 @@ class View(QtWidgets.QMainWindow, layout_form):
         return parameters
     
     def updateScanLimits(self):
-        """Avoid improper values for scan"""
+        """Update the maximim and minimum values for the scan parameters setters
+        and update """
         params = self.getScanParams()
+        #
         self.horizontalSlider_curXpos.setMaximum(params["Xcenter"] + params["Xrange"]/2)
         self.horizontalSlider_curXpos.setMinimum(params["Xcenter"] - params["Xrange"]/2)
         self.currentXPositionSpinBox.setMaximum(params["Xcenter"] + params["Xrange"]/2)
@@ -173,7 +165,6 @@ class View(QtWidgets.QMainWindow, layout_form):
         self.currentYPositionMSpinBox.setMaximum(params["Ycenter"] + params["Yrange"]/2)
         self.currentYPositionMSpinBox.setMinimum(params["Ycenter"] - params["Yrange"]/2)
         
-        #
         self.horizontalSlider_curXpos.setSingleStep(int(params["XstepSize"]))
         self.horizontalSlider_curYpos.setSingleStep(int(params["YstepSize"]))
         self.currentXPositionSpinBox.setSingleStep(int(params["XstepSize"]))
@@ -188,30 +179,28 @@ class View(QtWidgets.QMainWindow, layout_form):
         self.label_xStepSize.setText('X Step Size: %.2f nm'%params["XstepSize"])
         self.label_yStepSize.setText('Y Step Size: %.2f nm'%params["YstepSize"])
         
-        self.vanishImage(params['nXsteps'], params['nYsteps'])
-        self.updateImageLimits(params)
-        
-        self.updateMapRect(params)
+        #Graphs
+        self.updateImageRect(params)
+        self.updatePiezoMap(params)
         
         self.statusBar.showMessage("Limits Updated")
         logger.info("Scan Limits Updated")
         
     def startScan(self):
+        """Lock interface and change start pushButton status to allow abortion"""
         self.lockInterface(True)
         self.pushButton_startMeasurement.setStyleSheet("background-color: rgb(255, 170, 127);")
         self.pushButton_startMeasurement.setText("Abort Measurement")
         self.statusBar.showMessage("Scan in running")
     
     def finishScan(self):
+        """Unlock interface and change start pushButton status to allow start again"""
         self.lockInterface(False)
         self.pushButton_startMeasurement.setChecked(False)
         self.pushButton_startMeasurement.setStyleSheet("background-color: rgb(170, 255, 127);")
         self.updateProgressBar(0)
         self.pushButton_startMeasurement.setText("Start Measurement")
         self.statusBar.showMessage("Measurement finished")
-        
-        params = self.getScanParams()
-        self.updateImageLimits(params)
         
     ##############
     ### GRAPHS ###
@@ -223,9 +212,12 @@ class View(QtWidgets.QMainWindow, layout_form):
         self.mapPlotItem = self.widget_positioningMap.addPlot()
         self.mapPlotItem.setMouseEnabled(x=False, y=False)
         self.mapPlotItem.hideButtons()
-        self.mapPlotItem.setXRange(0,63)
-        self.mapPlotItem.setYRange(0,63)
+        
+        piezoParams = self.piezoDlg.getParameters()
+        self.mapPlotItem.setXRange(0,piezoParams['totalStrokeUmDoubleSpinBox_x'])
+        self.mapPlotItem.setYRange(0,piezoParams['totalStrokeUmDoubleSpinBox_y'])
         self.mapPlotItem.showAxes(True)
+        
         self.plotItem.setLabel('left', 'Position Y (um)')
         self.plotItem.setLabel('bottom', 'Position X (um)')
         
@@ -233,7 +225,7 @@ class View(QtWidgets.QMainWindow, layout_form):
         self.mapRect.setPen(pg.mkPen(0, 0, 0))
         self.mapPlotItem.addItem(self.mapRect)
     
-    def updateMapRect(self, params):
+    def updatePiezoMap(self, params):
         """Updates the positioning Map"""
         halfX = params["Xrange"]/2
         halfY = params["Yrange"]/2
@@ -277,21 +269,20 @@ class View(QtWidgets.QMainWindow, layout_form):
         self.plotItem.addItem(self.crossVLine, ignoreBounds=True)
         self.plotItem.addItem(self.crossHLine, ignoreBounds=True)
         
-    def updateImageLimits(self, params):
+    def updateImageRect(self, params):
+        self.updateImageData(np.zeros((params['nXsteps'], params['nYsteps'])))
+
         self.imagePlot.setRect(params["Xcenter"]-params["Xrange"]/2,\
                                params["Ycenter"]-params["Yrange"]/2,\
                                params["Xrange"],\
                                params["Yrange"])
-
+        
     def updateImageData(self, imageData):
         self.colorBar.setLevels((np.amin(imageData), np.amax(imageData)))
         self.imagePlot.setImage(imageData)
         
         QtWidgets.QApplication.processEvents()
     
-    def vanishImage(self, xSteps, ySteps):
-        self.imagePlot.setImage(np.zeros((xSteps, ySteps)))
-
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     window = View()
