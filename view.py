@@ -10,9 +10,7 @@ from PyQt5 import QtCore, QtWidgets, uic
 layout_form = uic.loadUiType("mainLayout.ui")[0]
 
 #Graphics
-import pyqtgraph as pg
-from pyqtgraph.Qt import QtGui
-import numpy as np
+import graphs
 
 #Dialogs
 import sys
@@ -44,9 +42,15 @@ class View(QtWidgets.QMainWindow, layout_form):
         self.statusBar.showMessage("Welcome!")
         
         ### GRAPHICS ###
-        self.startCurvePlot()
-        self.startImagePlot()
-        self.startScanMap()
+        #self.startCurvePlot()
+        #self.startImagePlot()
+        #self.startScanMap()
+        self.scanMapPlot = graphs.ScanMap(self.widget_positioningMap,
+                                          self.piezoDlg.getParameters())
+        
+        self.curvePlot = graphs.CurvePlot(self.widget_spectrumPlot)
+        
+        self.imagePlot = graphs.ImagePlot(self.widget_imagePlot)
         
         self.updateScanLimits()
         
@@ -119,9 +123,7 @@ class View(QtWidgets.QMainWindow, layout_form):
         self.currentXPositionSpinBox.setValue(pos['X'])
         self.currentYPositionMSpinBox.setValue(pos['Y'])
         
-        #cross line indicating the relative position
-        self.crossVLine.setPos(pos['X'])
-        self.crossHLine.setPos(pos['Y'])
+        self.imagePlot.updateCrossLine(pos)
     
     ############
     ### SCAN ###
@@ -180,8 +182,8 @@ class View(QtWidgets.QMainWindow, layout_form):
         self.label_yStepSize.setText('Y Step Size: %.2f nm'%params["YstepSize"])
         
         #Graphs
-        self.updateImageRect(params)
-        self.updatePiezoMap(params)
+        self.imagePlot.updateImageRect(params)
+        self.scanMapPlot.updatePiezoMap(params)
         
         self.statusBar.showMessage("Limits Updated")
         logger.info("Scan Limits Updated")
@@ -206,81 +208,12 @@ class View(QtWidgets.QMainWindow, layout_form):
     ### GRAPHS ###
     ##############
     
-    #SCAN MAP
-    def startScanMap(self):
-        self.widget_positioningMap.setBackground(None)
-        self.mapPlotItem = self.widget_positioningMap.addPlot()
-        self.mapPlotItem.setMouseEnabled(x=False, y=False)
-        self.mapPlotItem.hideButtons()
-        
-        piezoParams = self.piezoDlg.getParameters()
-        self.mapPlotItem.setXRange(0,piezoParams['totalStrokeUmDoubleSpinBox_x'])
-        self.mapPlotItem.setYRange(0,piezoParams['totalStrokeUmDoubleSpinBox_y'])
-        self.mapPlotItem.showAxes(True)
-        
-        self.plotItem.setLabel('left', 'Position Y (um)')
-        self.plotItem.setLabel('bottom', 'Position X (um)')
-        
-        self.mapRect = QtGui.QGraphicsRectItem(QtCore.QRectF(0, 0, 1, 1))
-        self.mapRect.setPen(pg.mkPen(0, 0, 0))
-        self.mapPlotItem.addItem(self.mapRect)
-    
-    def updatePiezoMap(self, params):
-        """Updates the positioning Map"""
-        halfX = params["Xrange"]/2
-        halfY = params["Yrange"]/2
-        
-        x0 = (params["Xcenter"] - halfX)/1000
-        y0 = (params["Ycenter"] - halfY)/1000
-        
-        self.mapRect.setRect(x0, y0, params["Xrange"]/1000, params["Yrange"]/1000)
-    
-    #CURVE PLOT
-    def startCurvePlot(self):
-        self.widget_spectrumPlot.setBackground(None)
-        self.curvePlot = self.widget_spectrumPlot.plot()
-        self.curvePlot.setPen('k')
-    
     def updateCurveData(self, curveData):     
-        self.curvePlot.setData(curveData)
+        self.curvePlot.updateCurveData(curveData)
         QtWidgets.QApplication.processEvents()
     
-    #IMAGE PLOT
-    def startImagePlot(self):
-        self.widget_imagePlot.setBackground(None)
-        
-        self.plotItem = self.widget_imagePlot.addPlot()
-        self.plotItem.setMouseEnabled(x=False, y=False)
-
-        self.imagePlot = pg.ImageItem(np.zeros((10,10)))
-        self.plotItem.addItem(self.imagePlot)
-        
-        self.plotItem.setLabel('left', 'Position Y (nm)')
-        self.plotItem.setLabel('bottom', 'Position X (nm)')
-
-        ### ColorMap
-        cmap = pg.colormap.get('viridis', source='matplotlib')
-        self.colorBar = pg.ColorBarItem(interactive=False, colorMap = cmap)
-        self.colorBar.setImageItem(self.imagePlot, insert_in = self.plotItem)
-        
-        ### Cross Hair
-        self.crossVLine = pg.InfiniteLine(pos = 0, angle=90, pen='k', movable=True)
-        self.crossHLine = pg.InfiniteLine(pos = 0, angle=0, pen='k', movable=True)
-        self.plotItem.addItem(self.crossVLine, ignoreBounds=True)
-        self.plotItem.addItem(self.crossHLine, ignoreBounds=True)
-        
-    def updateImageRect(self, params):
-        self.updateImageData(np.zeros((params['nXsteps'], params['nYsteps'])))
-
-        self.imagePlot.setRect(params["Xcenter"]-params["Xrange"]/2,\
-                               params["Ycenter"]-params["Yrange"]/2,\
-                               params["Xrange"],\
-                               params["Yrange"])
-        
     def updateImageData(self, imageData):
-        self.colorBar.setLevels((np.amin(imageData), np.amax(imageData)))
-        self.imagePlot.setImage(imageData)
-        
+        self.imagePlot.updateImageData(imageData)
         QtWidgets.QApplication.processEvents()
     
 if __name__ == '__main__':

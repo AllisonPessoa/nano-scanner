@@ -5,7 +5,6 @@ Created on Sat Nov 13 14:23:49 2021
 
 @author: allison
 """
-import time
 import sys
 import os.path
 sys.path.append(os.path.abspath("instruments"))

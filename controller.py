@@ -53,7 +53,7 @@ class Controller():
         self._view.currentYPositionMSpinBox.editingFinished.connect(self.moveBySpin)
         
         #~MouseClick
-        self._view.imagePlot.scene().sigMouseClicked.connect(self.moveByClick)
+        self._view.imagePlot.getScene().sigMouseClicked.connect(self.moveByClick)
         
         ########################
         ### SCAN PROPERTIES ####
@@ -162,7 +162,7 @@ class Controller():
         self._model.setPosition(self._model.getPosition())
         
     def moveByClick(self, mouseClickEvent):
-        vb = self._view.plotItem.vb
+        vb = self._view.imagePlot.plotItem.vb
         point = vb.mapToView(mouseClickEvent.pos())
         pos = {'X': point.x(), 'Y': point.y()}
         self._model.setPosition(pos)
