@@ -899,7 +899,6 @@ p, li { white-space: pre-wrap; }
      <string>Settings</string>
     </property>
     <addaction name="settingsAction_piezo"/>
-    <addaction name="settingsAction_spec"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">

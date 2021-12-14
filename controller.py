@@ -82,9 +82,7 @@ class Controller():
         self._view.fileAction_open.triggered.connect(self.openFile)
         self._view.fileAction_help.triggered.connect(lambda: startfile('help.html'))
             
-        self._view.settingsAction_piezo.triggered.connect(self.openPiezoDialog)
-        self._view.settingsAction_spec.triggered.connect(self.openSpecDialog)
-        
+        self._view.settingsAction_piezo.triggered.connect(self.openPiezoDialog)    
         self._view.piezoDlg.Ok.connect(self.updatePiezoProperties)
         
         #~General
@@ -180,7 +178,7 @@ class Controller():
     
     def updatePiezoProperties(self):
         piezoParams = self._view.piezoDlg.getParameters()
-        self._model.piezo.updatePiezoParams(piezoParams)
+        self._model.piezo.updateCalibrParams(piezoParams)
     
     ###############
     ### DIALOGS ###
@@ -190,10 +188,6 @@ class Controller():
         """Opens the Piezo Dialog for configuration"""
         self._view.piezoDlg.exec_()
 
-    def openSpecDialog(self):
-        """Opens the Spectrometer Dialog for configuration"""
-        self._view.specDlg.exec_()
-    
     def saveFile(self):
         filename = self._view.lineEdit_fileName.text()
         body = self._view.textEdit.toPlainText()
