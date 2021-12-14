@@ -6,7 +6,9 @@ Created on Sat Nov 13 14:23:10 2021
 @author: allison
 """
 from os import startfile
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QShortcut
+from PyQt5.QtGui import QKeySequence
+
 from PyQt5 import QtCore
 
 import model
@@ -27,6 +29,7 @@ class Controller():
         self._view.defineScanModes(self._model.getScanModes())
         # Connect signals and slots
         self._connectSignals()
+        self._connectShortcuts()
         
     def _connectSignals(self):
         """Connect signals and slots."""
@@ -49,12 +52,6 @@ class Controller():
         self._view.currentXPositionSpinBox.editingFinished.connect(self.moveBySpin)
         self._view.currentYPositionMSpinBox.editingFinished.connect(self.moveBySpin)
         
-        #~Shortcuts:
-        self._view.up_shortcut.activated.connect(self._model.moveUp)
-        self._view.down_shortcut.activated.connect(self._model.moveDown)
-        self._view.left_shortcut.activated.connect(self._model.moveLeft)
-        self._view.right_shortcut.activated.connect(self._model.moveRight)
-        
         #~MouseClick
         self._view.imagePlot.scene().sigMouseClicked.connect(self.moveByClick)
         
@@ -75,6 +72,11 @@ class Controller():
         ########################
         ##### MENU ACTIONS #####
         ########################
+        #~Shortcuts
+        self._view.fileAction_open.setShortcut(QKeySequence('Ctrl+O'))
+        self._view.fileAction_save.setShortcut(QKeySequence('Ctrl+S'))
+        self._view.fileAction_exit.setShortcut(QKeySequence('Ctrl+Q'))
+        self._view.fileAction_exit.setShortcut(QKeySequence('F1'))
         
         self._view.fileAction_save.triggered.connect(self.saveFile)
         self._view.fileAction_open.triggered.connect(self.openFile)
@@ -88,20 +90,31 @@ class Controller():
         #~General
         self._view.closeEvent = self.closeEvent
         
-        ##########################
-        ### SIGNALS FROM MODEL ###
-        ##########################
+        ##################################
+        ### CREATED SIGNALS FROM MODEL ###
+        ##################################
         
         self._model.emitFinished.connect(self.finishScan)
         self._model.emitCurveData.connect(self._view.updateCurveData)
         self._model.emitImageData.connect(self._view.updateImageData)
-        self._model.emitRelPos.connect(self._view.updateRelPos)
+        self._model.emitRelPos.connect(self._view.updatePos)
         self._model.emitCenterPos.connect(self._view.updateCenterPos)
         self._model.emitError.connect(self._view.errorBoxAlternative)
         self._model.emitVoltageStatus.connect(self._view.displayVoltage)
         self._model.emitProgress.connect(self._view.updateProgressBar)
-        
 
+    def _connectShortcuts(self):
+
+        self.up_shortcut = QShortcut(QKeySequence("Up"), self._view)
+        self.down_shortcut = QShortcut(QKeySequence("Down"), self._view)
+        self.left_shortcut = QShortcut(QKeySequence("Left"), self._view)
+        self.right_shortcut = QShortcut(QKeySequence("Right"), self._view)
+        
+        self.up_shortcut.activated.connect(self._model.moveUp)
+        self.down_shortcut.activated.connect(self._model.moveDown)
+        self.left_shortcut.activated.connect(self._model.moveLeft)
+        self.right_shortcut.activated.connect(self._model.moveRight)
+        
     ############
     ### SCAN ###
     ############
