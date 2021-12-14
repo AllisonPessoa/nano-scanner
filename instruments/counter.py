@@ -17,7 +17,12 @@ import sys
 from logging_setup import getLogger
 logger = getLogger()
 
-class Counter(QtWidgets.QWidget):
+from dataHandler import DataHandler
+
+class FinalMeta(type(QtWidgets.QWidget), type(DataHandler)):
+    pass
+
+class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     def __init__(self, parent=None):
         super().__init__(parent)
         loadUi("instruments\counter_layout.ui", self)
@@ -54,7 +59,7 @@ class Counter(QtWidgets.QWidget):
         
         return imageData, curveData
     
-    def getCurveData(self, pos):
+    def getCurveData(self, indexPos):
         return None
     
     def close(self):

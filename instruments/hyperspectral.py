@@ -9,8 +9,6 @@ from astropy.io import fits
 from PyQt5.uic import loadUi
 from PyQt5 import QtWidgets
 
-import pyqtgraph as pg
-
 import os
 import sys
 import time
@@ -18,7 +16,12 @@ import time
 from logging_setup import getLogger
 logger = getLogger()
 
-class Hyperspectral(QtWidgets.QWidget):
+from dataHandler import DataHandler
+
+class FinalMeta(type(QtWidgets.QWidget), type(DataHandler)):
+    pass
+
+class Hyperspectral(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     def __init__(self, parent=None):
         super().__init__(parent)
         loadUi("instruments\hyper_layout.ui", self)
