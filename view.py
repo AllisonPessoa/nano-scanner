@@ -4,18 +4,17 @@
 
 # @author: Allison Pessoa
 # """
+import sys
+import os.path
 
 #Interface
-from PyQt5 import QtCore, QtWidgets, uic
+from PyQt5 import QtWidgets, uic
 layout_form = uic.loadUiType("mainLayout.ui")[0]
 
 #Graphics
 import graphs
 
 #Dialogs
-import sys
-import os.path
-
 sys.path.append(os.path.abspath("dialogs"))
 import piezo_dialog
 import errorBox
@@ -42,9 +41,6 @@ class View(QtWidgets.QMainWindow, layout_form):
         self.statusBar.showMessage("Welcome!")
         
         ### GRAPHICS ###
-        #self.startCurvePlot()
-        #self.startImagePlot()
-        #self.startScanMap()
         self.scanMapPlot = graphs.ScanMap(self.widget_positioningMap,
                                           self.piezoDlg.getParameters())
         
@@ -112,6 +108,8 @@ class View(QtWidgets.QMainWindow, layout_form):
         
         self.horizontalSlider_curYabs.setValue(pos['Y'])
         self.currentYAbsolutMSpinBox.setValue(pos['Y'])
+        
+        self.updateScanLimits()
 
     #Sample Position
     def updatePos(self, pos):

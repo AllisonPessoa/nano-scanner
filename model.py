@@ -121,7 +121,7 @@ class Model(QtCore.QObject):
         
     def _calculateSteps(self):
         path = [{'X': self.scanCenter['X'] -  self.scanRange['X']/2,
-                 'Y': self.scanCenter['X'] -  self.scanRange['Y']/2}]
+                 'Y': self.scanCenter['Y'] -  self.scanRange['Y']/2}]
         indexPath = [(0,0)]
         
         nXsteps = self.scanNumSteps['X']

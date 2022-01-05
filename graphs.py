@@ -6,7 +6,7 @@ Created on Tue Dec 14 15:23:13 2021
 """
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
 
 import numpy as np
 
