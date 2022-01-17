@@ -25,6 +25,10 @@ class DataHandler(ABC):
         pass
     
     @abstractmethod
+    def getRawData(self):
+        pass
+    
+    @abstractmethod
     def close(self):
         pass
     

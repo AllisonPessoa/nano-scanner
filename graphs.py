@@ -52,8 +52,9 @@ class CurvePlot():
         self.curvePlot = self.widget_spectrumPlot.plot()
         self.curvePlot.setPen('k')
     
-    def updateCurveData(self, curveData):     
-        self.curvePlot.setData(curveData)
+    def updateCurveData(self, curveData): 
+        x, y = curveData
+        self.curvePlot.setData(x=x, y=y)
 
 
 class ImagePlot():

@@ -67,6 +67,7 @@ class Controller():
         #~Buttons
         self._view.pushButton_startMeasurement.clicked.connect(self.startScan)
         self._view.pushButton_save.clicked.connect(self.saveFile)
+        self._view.pushButton_exportRaw.clicked.connect(self.exportRawData)
         self._view.pushButton_setCenter.clicked.connect(self._model.setScanCenter)
         
         ########################
@@ -85,7 +86,9 @@ class Controller():
         self._view.settingsAction_piezo.triggered.connect(self.openPiezoDialog)    
         self._view.piezoDlg.Ok.connect(self.updatePiezoProperties)
         
-        #~General
+        ###################
+        ##### GENERAL #####
+        ###################
         self._view.closeEvent = self.closeEvent
         
         ##################################
@@ -194,6 +197,11 @@ class Controller():
         message = self._model.saveFile(filename, body)
         self._view.statusBar.showMessage(message)
     
+    def exportRawData(self):
+        filename = self._view.lineEdit_fileNameExport.text()
+        message = self._model.exportRawData(filename)
+        self._view.statusBar.showMessage(message)
+        
     def openFile(self):
         try:
             data = self._model.loadFile()

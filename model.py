@@ -16,6 +16,7 @@ import counter
 
 from PyQt5 import QtWidgets, QtCore
 import pickle
+import numpy as np
 
 from logging_setup import getLogger
 logger = getLogger()
@@ -37,7 +38,10 @@ class Model(QtCore.QObject):
         
         ### INSTRUMENTS INIT ###
         self.piezo = piezoSystem.PiezoCommunication(piezoParams)
-
+        
+        ### SAVING ###
+        self.lastDir = ''
+        
     # Signals to update View
     emitFinished = QtCore.pyqtSignal()
     emitCurveData = QtCore.pyqtSignal(object)
@@ -238,30 +242,53 @@ class Model(QtCore.QObject):
         """When the 'Save' pushButton is pressed, or 'Ctrl + S': 
             Opens a dialog to save a .hss file"""
         if filename != '':
-            scanParams = vars(self.scan)
-            #scanParams.update({'notes' : addText})
+            expNotes = {'notes' : addText}
             fileName, _ = QtWidgets.QFileDialog.getSaveFileName(
-                caption="Select File Path",dir=filename,filter="Hyper Spec (*.hss)")
+                caption="Select File Path",directory=filename,filter="Hyper Spec (*.hss)")
             if fileName:
                 try:
                     file = open(fileName, 'wb')
-                    pickle.dump(scanParams, file)
+                    saveItems = [self.scanRange,
+                                 self.scanNumSteps,
+                                 self.scanStepSize,
+                                 self.scanCenter,
+                                 self.dataHandler.getRawData(),
+                                 expNotes]
+                    pickle.dump(saveItems, file)
                     file.close()
                     return ("File saved successfully")
                 except:
+                    file.close()
                     self.emitError.emit("Error on saving File")
+                    
         else:
             self.emitError.emit("Did not save. Please name your file")
     
-    def openFile(self):
+    def exportRawData(self, exportFileName):
+        if exportFileName != '':
+            fileName, _ = QtWidgets.QFileDialog.getSaveFileName(
+                    caption = "Select File Path",\
+                    directory = self.lastDir + exportFileName + '.txt',
+                    filter = "Text files (*.txt)")
+            if fileName:
+                #try:
+                self.lastDir = fileName.replace(exportFileName+'.txt','')
+                numpyArray = self.dataHandler.getRawData()
+                np.savetxt(fileName, numpyArray, fmt='%s')
+                return ("File saved successfully")
+                #except:
+                #    self.emitError.emit("Error on saving File")
+        else:
+            return("Did not save. Please name your file")
+            
+    def loadFile(self):
         """When the Menu->File->Open is pressed, or 'Ctrl + O': 
             Opens a dialog to read a .hss file"""
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
-            caption="Select File Path",dir="",filter="Hyper Spec (*.hss)")
+            caption="Select File Path",directory="",filter="Hyper Spec (*.hss)")
         if fileName:
             file = open(fileName, 'rb')
-            loadedScan = self
-            loadedScan.__dic__ = pickle.load(file)
+            
             file.close()
             
             self.scan__dic__ = loadedScan.__dic__

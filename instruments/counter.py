@@ -26,7 +26,7 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     def __init__(self, parent=None):
         super().__init__(parent)
         loadUi("instruments\counter_layout.ui", self)
-        self.conversion = 0.002 #V/counts
+        self.conversion = 0.002 #V/counts - instrument
         try:
             self.task = nidaqmx.Task()
             self.task.ai_channels.add_ai_voltage_chan("Dev1/ai1")
@@ -61,6 +61,9 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     
     def getCurveData(self, indexPos):
         return None
+    
+    def getRawData(self):
+        return self.imageMap
     
     def close(self):
         self.task.stop()
