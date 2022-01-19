@@ -27,7 +27,6 @@ class Hyperspectral(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
         super().__init__(parent)
         loadUi("instruments\hyper_layout.ui", self)
         self.fileName = r'C:\Users\Nano2\Desktop\Allison\Microscopia Hiperespectral\files\espectro.asc'
-        self.flagName = r'C:\Users\Nano2\Desktop\Allison\Microscopia Hiperespectral\files\flag.asc'
         logger.info("Hyperspectral Started")
         
     def setDataParams(self, Xdim, Ydim, nElem):
@@ -62,44 +61,56 @@ class Hyperspectral(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     ### --------
     
     def _setPixelData(self, indexPos, data):
-        self.wavelength, intensity = data
+        if indexPos[0] == 0 and indexPos[1] == 0:
+            self.wavelength, intensity = data
+            self._setWavelengthsIndexes()
+        intensity = data[1]
         self.hyperData[indexPos[0], indexPos[1]] = np.array(intensity)
     
+    def _setWavelengthsIndexes(self):
+        wavelength_0 = int(self.lineEdit_singleBand0.text())
+        wavelength_1 = int(self.lineEdit_singleBand1.text())
+        
+        self.single_index_0 = self._getIndex(self.wavelength, wavelength_0)
+        self.single_index_1 = self._getIndex(self.wavelength, wavelength_1)
+        
+        sup_0 = int(self.lineEdit_bandRatioSup0.text())
+        sup_1 = int(self.lineEdit_bandRatioSup1.text())
+        inf_0 = int(self.lineEdit_bandRatioInf0.text())
+        inf_1 = int(self.lineEdit_bandRatioInf1.text())
+        
+        self.dual_ind_sup_0 = self._getIndex(self.wavelength, sup_0)
+        self.dual_ind_sup_1 = self._getIndex(self.wavelength, sup_1)
+        self.dual_ind_inf_0 = self._getIndex(self.wavelength, inf_0)
+        self.dual_ind_inf_1 = self._getIndex(self.wavelength, inf_1)
+            
     def _getPixelValue(self, indexPos):
         
         if self.radioButton_hyper_singleBand.isChecked():
-            wavelength_0 = int(self.lineEdit_singleBand0.text())
-            wavelength_1 = int(self.lineEdit_singleBand1.text())
             band_int = self._getBandIntensity(self.hyperData[indexPos[0]][indexPos[1]],
-                                              wavelength_0,
-                                              wavelength_1)
+                                              self.single_index_0,
+                                              self.single_index_1)
             
             return band_int
         
         else: #Band Ratio
-            sup_0 = int(self.lineEdit_bandRatioSup0.text())
-            sup_1 = int(self.lineEdit_bandRatioSup1.text())
-            
-            inf_0 = int(self.lineEdit_bandRatioInf0.text())
-            inf_1 = int(self.lineEdit_bandRatioInf1.text())
-            
             sup_band_int = self._getBandIntensity(self.hyperData[indexPos[0]][indexPos[1]],
-                                                  sup_0,
-                                                  sup_1)
+                                                  self.dual_ind_sup_0,
+                                                  self.dual_ind_sup_1)
             inf_band_int = self._getBandIntensity(self.hyperData[indexPos[0]][indexPos[1]],
-                                                  inf_0,
-                                                  inf_1)
-            LIR = sup_band_int/inf_band_int ## 0/0 = nan
+                                                  self.dual_ind_inf_0,
+                                                  self.dual_ind_inf_1)
+            LIR = float(sup_band_int/inf_band_int)
             
-            return LIR
+            if np.isnan(LIR) is not 1 and LIR < 1:
+                return LIR
+            else:
+                return 0
     
-    def _getBandIntensity(self, data, wavelength_0, wavelength_1):
-
-        index_0 = self._getIndex(self.wavelength, wavelength_0)
-        index_1 = self._getIndex(self.wavelength, wavelength_1)
+    def _getBandIntensity(self, data, index_0, index_1):
         
-        wave_to_integrate =  self.wavelength[index_0: index_1]
-        counts_to_integrate =  data[index_0: index_1]
+        wave_to_integrate =  self.wavelength[index_0 : index_1]
+        counts_to_integrate =  data[index_0 : index_1]
         
         band_integral = integrate.simpson(counts_to_integrate, wave_to_integrate)
         
@@ -122,30 +133,25 @@ class Hyperspectral(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     def _acquireData(self):
         wavelength, intensity = [], []
         timeout = time.time() + 5
-        
-        originalTime = os.path.getmtime(self.flagName)
+
         while(time.time() < timeout):
             try:
-                curModTime = os.path.getmtime(self.flagName)
-                assert type(curModTime) == float #When it gets a float
-                
-                if (curModTime > originalTime):
-                    try:
-                        file = open(self.fileName, 'r')
-                        for line in file.readlines():
-                            wavelength.append(float(line.split(',')[0]))
-                            intensity.append(float(line.split(',')[1]))
-                        
-                        file.close()
-                        break
-                    except:
-                        print("Erro on reading original file")
-                        
+                os.rename(self.fileName, self.fileName)
+                break
             except:
                 pass
-            
+        try:
+            file = open(self.fileName, 'r')
+            for line in file.readlines():
+                wavelength.append(float(line.split(',')[0]))
+                intensity.append(float(line.split(',')[1]))
+        except Exception as error:
+            print('Erro'+ str(error))
+        
+        file.close()
+        os.remove(self.fileName)
+        
         return wavelength, intensity
-    
     
     
 if __name__ == "__main__":

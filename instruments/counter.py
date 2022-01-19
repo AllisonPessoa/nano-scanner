@@ -81,7 +81,7 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
         return self.imageMap
     
     def _getDataBuffer(self):
-        return list(self.counterBuffer)
+        return (range(len(self.counterBuffer)),list(self.counterBuffer))
         
     def _acquireData(self):
         value = self.task.read()
