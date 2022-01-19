@@ -64,8 +64,6 @@ class View(QtWidgets.QMainWindow, layout_form):
     def lockInterface(self, disabled = False):
         """Lock/Unlock most of the interface widgets"""
         self.lockedUI = disabled
-        #~pushButtons
-        self.pushButton_save.setDisabled(disabled)
         #~SpinBoxes
         self.rangeXpositionMSpinBox.setDisabled(disabled)
         self.XstepsSpinBox.setDisabled(disabled)
@@ -215,6 +213,7 @@ class View(QtWidgets.QMainWindow, layout_form):
         QtWidgets.QApplication.processEvents()
     
 if __name__ == '__main__':
+    
     app = QtWidgets.QApplication(sys.argv)
     window = View()
     control = controller.Controller(window)

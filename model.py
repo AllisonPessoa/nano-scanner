@@ -14,8 +14,8 @@ import piezoSystem
 import hyperspectral
 import counter
 
-from PyQt5 import QtWidgets, QtCore
-import pickle
+from PyQt5 import QtCore
+
 import numpy as np
 
 from logging_setup import getLogger
@@ -93,6 +93,12 @@ class Model(QtCore.QObject):
         
         self.dataHandler.setScanIndexPath(indexScanPath)
         
+        import cProfile
+        import pstats
+        import io
+        pr = cProfile.Profile()
+        pr.enable()
+            
         for index, pos in enumerate(scanPath):
             if self.scanAbort == False:
                 try:
@@ -111,6 +117,15 @@ class Model(QtCore.QObject):
                 self.emitProgress.emit((index/totalScanLen)*100)
             else:
                 break
+        
+        pr.disable()
+        s = io.StringIO()
+        ps = pstats.Stats(pr, stream=s).sort_stats('tottime')
+        ps.print_stats()
+        
+        with open('profile.txt', 'w+') as f:
+            f.write(s.getvalue())
+            
         self.finishScan()
     
     def endApplication(self):
@@ -236,60 +251,3 @@ class Model(QtCore.QObject):
             message = "The scan size will extrapolate the piezo limits"
             self.emitError.emit(message)
             logger.error(message)
-                
-    # GENERAL
-    def saveFile(self, filename, addText):
-        """When the 'Save' pushButton is pressed, or 'Ctrl + S': 
-            Opens a dialog to save a .hss file"""
-        if filename != '':
-            expNotes = {'notes' : addText}
-            fileName, _ = QtWidgets.QFileDialog.getSaveFileName(
-                caption="Select File Path",directory=filename,filter="Hyper Spec (*.hss)")
-            if fileName:
-                try:
-                    file = open(fileName, 'wb')
-                    saveItems = [self.scanRange,
-                                 self.scanNumSteps,
-                                 self.scanStepSize,
-                                 self.scanCenter,
-                                 self.dataHandler.getRawData(),
-                                 expNotes]
-                    pickle.dump(saveItems, file)
-                    file.close()
-                    return ("File saved successfully")
-                except:
-                    file.close()
-                    self.emitError.emit("Error on saving File")
-                    
-        else:
-            self.emitError.emit("Did not save. Please name your file")
-    
-    def exportRawData(self, exportFileName):
-        if exportFileName != '':
-            fileName, _ = QtWidgets.QFileDialog.getSaveFileName(
-                    caption = "Select File Path",\
-                    directory = self.lastDir + exportFileName + '.txt',
-                    filter = "Text files (*.txt)")
-            if fileName:
-                #try:
-                self.lastDir = fileName.replace(exportFileName+'.txt','')
-                numpyArray = self.dataHandler.getRawData()
-                np.savetxt(fileName, numpyArray, fmt='%s')
-                return ("File saved successfully")
-                #except:
-                #    self.emitError.emit("Error on saving File")
-        else:
-            return("Did not save. Please name your file")
-            
-    def loadFile(self):
-        """When the Menu->File->Open is pressed, or 'Ctrl + O': 
-            Opens a dialog to read a .hss file"""
-        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
-            caption="Select File Path",directory="",filter="Hyper Spec (*.hss)")
-        if fileName:
-            file = open(fileName, 'rb')
-            
-            file.close()
-            
-            self.scan__dic__ = loadedScan.__dic__
-            return self.getScanParams()

@@ -5,6 +5,8 @@ Created on Tue Dec 14 15:23:13 2021
 @author: Allison Pessoa
 """
 import pyqtgraph as pg
+import pyqtgraph.exporters
+
 from pyqtgraph.Qt import QtGui
 from PyQt5 import QtCore
 
@@ -52,6 +54,10 @@ class CurvePlot():
         self.curvePlot = self.widget_spectrumPlot.plot()
         self.curvePlot.setPen('k')
     
+    def getExporter(self):
+        exporter = pg.exporters.ImageExporter(self.widget_spectrumPlot.scene())
+        return exporter
+    
     def updateCurveData(self, curveData): 
         x, y = curveData
         self.curvePlot.setData(x=x, y=y)
@@ -82,6 +88,10 @@ class ImagePlot():
         self.plotItem.addItem(self.crossVLine, ignoreBounds=True)
         self.plotItem.addItem(self.crossHLine, ignoreBounds=True)
     
+    def getExporter(self):
+        exporter = pg.exporters.ImageExporter(self.plotItem)
+        return exporter
+        
     def getScene(self):
         return self.imagePlot.scene()
     

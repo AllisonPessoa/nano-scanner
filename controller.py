@@ -6,12 +6,14 @@ Created on Sat Nov 13 14:23:10 2021
 @author: allison
 """
 from os import startfile
-from PyQt5.QtWidgets import QMessageBox, QShortcut
-from PyQt5.QtGui import QKeySequence
 
+from PyQt5.QtWidgets import QMessageBox, QShortcut, QFileDialog
+from PyQt5.QtGui import QKeySequence
 from PyQt5 import QtCore
 
 import model
+
+import numpy as np
 
 from logging_setup import getLogger
 logger = getLogger()
@@ -27,6 +29,7 @@ class Controller():
         
         self._model = model.Model(piezoParams, scanParams)
         self._view.defineScanModes(self._model.getScanModes())
+        self.lastDir = ''
         # Connect signals and slots
         self._connectSignals()
         self._connectShortcuts()
@@ -66,8 +69,7 @@ class Controller():
 
         #~Buttons
         self._view.pushButton_startMeasurement.clicked.connect(self.startScan)
-        self._view.pushButton_save.clicked.connect(self.saveFile)
-        self._view.pushButton_exportRaw.clicked.connect(self.exportRawData)
+        self._view.pushButton_exportData.clicked.connect(self.exportData)
         self._view.pushButton_setCenter.clicked.connect(self._model.setScanCenter)
         
         ########################
@@ -75,12 +77,10 @@ class Controller():
         ########################
         #~Shortcuts
         self._view.fileAction_open.setShortcut(QKeySequence('Ctrl+O'))
-        self._view.fileAction_save.setShortcut(QKeySequence('Ctrl+S'))
         self._view.fileAction_exit.setShortcut(QKeySequence('Ctrl+Q'))
         self._view.fileAction_exit.setShortcut(QKeySequence('F1'))
         
-        self._view.fileAction_save.triggered.connect(self.saveFile)
-        self._view.fileAction_open.triggered.connect(self.openFile)
+        #self._view.fileAction_open.triggered.connect(self.openFile)
         self._view.fileAction_help.triggered.connect(lambda: startfile('help.html'))
             
         self._view.settingsAction_piezo.triggered.connect(self.openPiezoDialog)    
@@ -191,24 +191,70 @@ class Controller():
         """Opens the Piezo Dialog for configuration"""
         self._view.piezoDlg.exec_()
 
-    def saveFile(self):
-        filename = self._view.lineEdit_fileName.text()
-        body = self._view.textEdit.toPlainText()
-        message = self._model.saveFile(filename, body)
-        self._view.statusBar.showMessage(message)
     
-    def exportRawData(self):
-        filename = self._view.lineEdit_fileNameExport.text()
-        message = self._model.exportRawData(filename)
-        self._view.statusBar.showMessage(message)
+    #################
+    ### EXPORTERS ###
+    #################
+    
+    def exportColorBarRaw(self, fileName):
+        numpyArray = self._model.dataHandler.getRawData()
+        np.save(fileName  + '_CBR' + '.npy', numpyArray)
+        logger.info("Exported ColorBar Raw Data at " + fileName)
         
-    def openFile(self):
-        try:
-            data = self._model.loadFile()
-            self._view.loadData(data)
-        except Exception as erro:
-            errorMessage =  erro.args[0]
-            self._view.errorBoxAlternative(errorMessage)
+    def exportColorBarImage(self, fileName):
+        exporter = self._view.imagePlot.getExporter()
+        exporter.export(fileName + '_CBI' + '.png')
+        logger.info("Exported ColorBar Image file at " + fileName)
+        
+    def exportCurvePlotRaw(self, fileName):
+        index_pos = (self._model.pos['Xindex'], self._model.pos['Yindex'])
+        curveRawData = self._model.dataHandler.getCurveData(index_pos)
+        np.save(fileName + '_CPR' + '.npy', curveRawData)
+        logger.info("Exported CurvePlot Raw Data at " + fileName)
+        
+    def exportCurvePlotImage(self, fileName):
+        exporter = self._view.curvePlot.getExporter()
+        exporter.export(fileName + '_CPI' + '.png')
+        logger.info("Exported CurvePlot Image at " + fileName)
+        
+    def exportExpInfo(self, fileName):
+        logger.info("Exported Experimental Informations at " + fileName)
+        
+    def exportData(self):
+
+        options = [self._view.checkBox_exportColorBarRaw,
+                   self._view.checkBox_exportColorBarImage,
+                   self._view.checkBox_exportCurvePlotRaw,
+                   self._view.checkBox_exportCurvePlotImage,
+                   self._view.checkBox_exportExpInfo]
+        functions = [self.exportColorBarRaw,
+                     self.exportColorBarImage,
+                     self.exportCurvePlotRaw,
+                     self.exportCurvePlotImage,
+                     self.exportExpInfo]
+        
+        exportFileName = self._view.lineEdit_fileNameExport.text()
+        fileName, _ = QFileDialog.getSaveFileName(
+        caption = "Select File Path",\
+        directory = self.lastDir + exportFileName)
+            
+        if fileName:
+            #try:
+            
+            for op in options:
+                if op.isChecked() == 1:
+                    functions[options.index(op)](fileName)
+            
+            self.lastDir = fileName.replace(exportFileName,'')
+
+        
+    # def openFile(self):
+    #     try:
+    #         data = self._model.loadFile()
+    #         self._view.loadData(data)
+    #     except Exception as erro:
+    #         errorMessage =  erro.args[0]
+    #         self._view.errorBoxAlternative(errorMessage)
     
     def closeEvent(self, event):
         """When the program is properly closed, this method vanishes the Piezo voltage
