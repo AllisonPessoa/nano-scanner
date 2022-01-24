@@ -38,7 +38,7 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
             self.label_deviceStatus.setText("Disconnected."+erro[0])
             logger.exception("Error on starting Piezo")
             
-    def setDataParams(self, Xdim, Ydim, nElem):
+    def setDataParams(self, Xdim, Ydim):
         self.dim = (Xdim,Ydim)
         self.imageMap = np.zeros(self.dim)
         self.counterBuffer = deque([],maxlen=100)

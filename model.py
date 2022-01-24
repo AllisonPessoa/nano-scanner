@@ -16,7 +16,9 @@ import counter
 
 from PyQt5 import QtCore
 
-import numpy as np
+import cProfile
+import pstats
+import io
 
 from logging_setup import getLogger
 logger = getLogger()
@@ -89,13 +91,10 @@ class Model(QtCore.QObject):
         modeKey = next(x for x in self.scanModes.keys() if x == mode)
         self.dataHandler = self.scanModes[modeKey]
         self.dataHandler.setDataParams(self.scanNumSteps['X'], \
-                                       self.scanNumSteps['Y'], 1024)
+                                       self.scanNumSteps['Y'])
         
         self.dataHandler.setScanIndexPath(indexScanPath)
         
-        import cProfile
-        import pstats
-        import io
         pr = cProfile.Profile()
         pr.enable()
             
@@ -122,7 +121,6 @@ class Model(QtCore.QObject):
         s = io.StringIO()
         ps = pstats.Stats(pr, stream=s).sort_stats('tottime')
         ps.print_stats()
-        
         with open('profile.txt', 'w+') as f:
             f.write(s.getvalue())
             

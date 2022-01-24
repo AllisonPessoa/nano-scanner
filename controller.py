@@ -246,15 +246,6 @@ class Controller():
                     functions[options.index(op)](fileName)
             
             self.lastDir = fileName.replace(exportFileName,'')
-
-        
-    # def openFile(self):
-    #     try:
-    #         data = self._model.loadFile()
-    #         self._view.loadData(data)
-    #     except Exception as erro:
-    #         errorMessage =  erro.args[0]
-    #         self._view.errorBoxAlternative(errorMessage)
     
     def closeEvent(self, event):
         """When the program is properly closed, this method vanishes the Piezo voltage

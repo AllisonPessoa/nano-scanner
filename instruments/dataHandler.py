@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 class DataHandler(ABC):
     
     @abstractmethod
-    def setDataParams(self, Xdim, Ydim, nElem):
+    def setDataParams(self, Xdim, Ydim):
         pass
     
     @abstractmethod

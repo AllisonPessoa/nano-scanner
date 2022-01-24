@@ -18,12 +18,12 @@
     <rect>
      <x>10</x>
      <y>60</y>
-     <width>111</width>
+     <width>201</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Show Image As</string>
+    <string>Show Image as single value intensity</string>
    </property>
   </widget>
   <widget class="QWidget" name="gridLayoutWidget">
@@ -31,143 +31,44 @@
     <rect>
      <x>10</x>
      <y>80</y>
-     <width>216</width>
-     <height>161</height>
+     <width>201</width>
+     <height>61</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="0">
+    <item row="0" column="0">
      <widget class="QLabel" name="label_16">
       <property name="text">
-       <string>Band (nm)</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="0">
-     <widget class="QLabel" name="label_18">
-      <property name="text">
-       <string>Upper Band </string>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="1">
-     <widget class="QLineEdit" name="lineEdit_bandRatioInf0">
-      <property name="text">
-       <string>535</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0">
-     <widget class="QRadioButton" name="radioButton_hyper_singleBand">
-      <property name="text">
-       <string>Single Band</string>
-      </property>
-      <property name="checked">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="0">
-     <widget class="QLabel" name="label_19">
-      <property name="text">
-       <string>Bottom Band</string>
+       <string>Index (0 - 1023)</string>
       </property>
      </widget>
     </item>
     <item row="1" column="1">
-     <widget class="QLineEdit" name="lineEdit_singleBand0">
-      <property name="text">
-       <string>515</string>
+     <widget class="QLCDNumber" name="lcdNumber_hyperValue">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(80, 80, 80);
+selection-color: rgb(255, 255, 255);</string>
       </property>
      </widget>
     </item>
-    <item row="3" column="0">
-     <widget class="QRadioButton" name="radioButton_hyper_bandRatio">
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_4">
       <property name="text">
-       <string>Band Ratio</string>
+       <string>Value</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="3">
-     <widget class="QLineEdit" name="lineEdit_singleBand1">
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="lineEdit_falseColorIndex">
       <property name="text">
-       <string>555</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="1">
-     <widget class="QLineEdit" name="lineEdit_bandRatioSup0">
-      <property name="text">
-       <string>515</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="2">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>to</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="2">
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>to</string>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="2">
-     <widget class="QLabel" name="label_3">
-      <property name="text">
-       <string>to</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="3">
-     <widget class="QLineEdit" name="lineEdit_bandRatioSup1">
-      <property name="text">
-       <string>535</string>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="3">
-     <widget class="QLineEdit" name="lineEdit_bandRatioInf1">
-      <property name="text">
-       <string>555</string>
+       <string>143</string>
       </property>
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QLabel" name="label_4">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>230</y>
-     <width>51</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Value</string>
-   </property>
-  </widget>
-  <widget class="QLCDNumber" name="lcdNumber_hyperValue">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>250</y>
-     <width>131</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background-color: rgb(80, 80, 80);
-selection-color: rgb(255, 255, 255);</string>
-   </property>
   </widget>
   <widget class="QLabel" name="label_14">
    <property name="geometry">
@@ -182,7 +83,10 @@ selection-color: rgb(255, 255, 255);</string>
     <string>Scan folder files:</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_scanFiles">
+  <widget class="QLineEdit" name="lineEdit_fileFolder">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -190,6 +94,9 @@ selection-color: rgb(255, 255, 255);</string>
      <width>141</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="text">
+    <string>C:/Users/Nano2/Desktop/Allison/Microscopia Hiperespectral/files</string>
    </property>
   </widget>
   <widget class="QToolButton" name="toolButton_selectFolder">
