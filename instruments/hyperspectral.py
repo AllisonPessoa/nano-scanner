@@ -41,18 +41,13 @@ class Hyperspectral(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
         dt = np.dtype((np.float32, 1024))
         self.hyperData = np.zeros(self.dim, dtype = dt)
         logger.info("Hyperspectral got data params")
-            
-    def setScanIndexPath(self, scanIndexPath):
-        #scanIndexPath : List of tuples representing the scan current index position
-        self.scanIterator = iter(scanIndexPath)
     
-    def getDataDuringScan(self):
-        curScanIndexPos = next(self.scanIterator)
-        self._setPixelData(curScanIndexPos, self._acquireData())
+    def getDataDuringScan(self, indexPos):
+        self._setPixelData(indexPos, self._acquireData())
         
         imageData = self._getIntensityMap()
-        curveData = self.getCurveData(curScanIndexPos)
-        self.lcdNumber_hyperValue.display(self._getPixelValue(curScanIndexPos))
+        curveData = self.getCurveData(indexPos)
+        self.lcdNumber_hyperValue.display(self._getPixelValue(indexPos))
         
         return imageData, curveData
     
