@@ -1,6 +1,6 @@
 # NanoScanner
 
-##Overview
+## Overview
 
 NanoScanner is an environment to perform scan imaging of micro and nanosystems. It executes sample pixel-by-pixel scan, with nanometric spatial resolution, while acquires information from any desired peripheral instrument that is interacting with the nanosystem. This brings the versatility of building images from numerous physical parameters. Applications performed with the Software includes:
 * Luminescence image of single micro and nanoparticles (the detected signal is a photocounter counts)
@@ -13,20 +13,21 @@ NanoScanner provides the versatility of easily implementing new instruments and 
 
 ## Peripherals
 
-A piezoelectric system controls the sample position in three axis. To provide the necessary voltage to drive the piezo, this software interfaces with a Digital-to-Analog converter (DAC) (National Instruments) and the specifications can be set through a dialog.
+A piezoelectric system controls the sample position in three axis. To provide the necessary voltage to drive the piezo, this software interfaces with a Digital-to-Analog converter (DAC) (National Instruments) which is connected to a ultra-stable voltage amplifier. The specifications can be set through a dialog.
 
-The interface with new instruments are easily to be implemented, because all the source code is written in Python, and the peripheral programming is detached from the whole positioning control and Graphical User Interface. Once you create a new instrument, all available peripherals will be displayed on the main screen. Once a peripheral is selected, the specific configurations are shown and can be set.
+The interfaces with new instruments are easily to be implemented because all the source code is written in Python, and the peripheral programming is detached from the whole positioning control and Graphical User Interface. Once you create a new instrument, all available peripherals will be displayed on the main screen. Once a peripheral is selected, the specific configurations you programmed are shown and can be set.
 
 ## Usage
 
 Originally, this software was developed for imaging rare-earth-doped dielectric nanoparticles interacting with light. Thus, the built-in peripherals are specific for communicating with the instruments available in our Laboratories, which are:
 
-* **National Instruments ADC (Analog-to-Digital Converter)**: Reads the analog output from a home-assembled photon counter, which counts the number of incoming pulses from the photodetector and transforms it to a voltage level.
+* **National Instruments ADC (Analog-to-Digital Converter)**: Reads the analog output from a home-assembled photon counter, which counts the number of incoming pulses from the photodetector and transforms it to a voltage level. Also can be used to read the output of a Lock-in amplifier in the Scanning Probe Microscope, which represents que distance of the to the sample, allowing builiding nanoscopic tophography images.
 
 * **Princeton Instruments Monochomator + Andor Solis CCD camera**: This is a typical spectrometer setup for acquiring the spectrum of the particles. The monochomator is responsible for splitting the white light into the CCD camera's sensors. The internal control of both is possible with Python (See pylablib? library), but requires a thorough understanding of the instrument's internal functions and workflows for correctly operating, otherwise could damage the hardware. A more secure approach is to use the manufacture's software for taking the spectra automatically, and constantly, then saving them in a folder (this is possible with the camera's internal programming language), which the scanning routine will be constantly monitoring for new data. When the spectrum file is modified, the routine take that as a pixel's information, and move for the next.
 
 ## Installation
 
+Clone this repository on GitHub or Download Zip. 
 ### Dependencies
 
 ## Documentation
@@ -61,3 +62,9 @@ File system.
 ## Credits
 This software was developed by Allison Pessoa for the Nano-Optics Laboartory in Federal University of Pernambuco, Recife-PE, Brazil,
 Contact: allison.pessoa@upfe.br | allisonpessoa@hotmail.com
+
+## Appedix A - Installing new peripherals
+Peripherals are child classes from DataHandler. It sets the basic functions needed to perform scan and show data. You can create your own classes, make the necessary algorithms and display the resulting data on real-time during scan (be aware that heavy computations slow down the scan).
+
+<width>230</width>
+    <height>309</height>
