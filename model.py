@@ -11,8 +11,7 @@ sys.path.append(os.path.abspath("instruments"))
 
 # INSTRUMENTS
 import piezoSystem
-import hyperspectral
-import counter
+import instruments
 
 from PyQt5 import QtCore
 
@@ -38,7 +37,7 @@ class Model(QtCore.QObject):
         self.dataHandler = None
         self.scanAbort = False
         
-        ### INSTRUMENTS INIT ###
+        ### PIEZO INIT ###
         self.piezo = piezoSystem.PiezoCommunication(piezoParams)
         
         ### SAVING ###
@@ -55,9 +54,7 @@ class Model(QtCore.QObject):
     emitProgress = QtCore.pyqtSignal(float)
     
     def getScanModes(self):
-        self.scanModes = {
-            "Hyperspectral": hyperspectral.Hyperspectral(),
-            "Counter": counter.Counter()}
+        self.scanModes = instruments.scanModes
         return self.scanModes
         
     def _roundToAxis(self, value, stepSize):
