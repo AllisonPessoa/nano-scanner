@@ -34,4 +34,6 @@ class DataHandler(ABC):
     def close(self):
     """ Close the communication with the instruments securetely """
         pass
-    
+
+class FinalMeta(type(QtWidgets.QWidget), type(DataHandler)):
+    pass
