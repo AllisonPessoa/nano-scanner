@@ -17,10 +17,7 @@ import time
 from logging_setup import getLogger
 logger = getLogger()
 
-from dataHandler import DataHandler
-
-class FinalMeta(type(QtWidgets.QWidget), type(DataHandler)):
-    pass
+from dataHandler import DataHandler, FinalMeta
 
 class Hyperspectral(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     def __init__(self, parent=None):
