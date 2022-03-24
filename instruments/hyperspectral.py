@@ -5,7 +5,6 @@ Created on Tue Nov 23 16:25:27 2021
 @author: Nano2
 """
 import numpy as np
-from scipy import integrate
 
 from PyQt5.uic import loadUi
 from PyQt5 import QtWidgets
