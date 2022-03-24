@@ -5,7 +5,6 @@ Created on Tue Nov 23 16:25:27 2021
 @author: Nano2
 """
 import numpy as np
-from scipy import integrate
 
 from PyQt5.uic import loadUi
 from PyQt5 import QtWidgets
@@ -17,10 +16,7 @@ import time
 from logging_setup import getLogger
 logger = getLogger()
 
-from dataHandler import DataHandler
-
-class FinalMeta(type(QtWidgets.QWidget), type(DataHandler)):
-    pass
+from dataHandler import DataHandler, FinalMeta
 
 class Hyperspectral(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     def __init__(self, parent=None):
@@ -41,18 +37,13 @@ class Hyperspectral(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
         dt = np.dtype((np.float32, 1024))
         self.hyperData = np.zeros(self.dim, dtype = dt)
         logger.info("Hyperspectral got data params")
-            
-    def setScanIndexPath(self, scanIndexPath):
-        #scanIndexPath : List of tuples representing the scan current index position
-        self.scanIterator = iter(scanIndexPath)
     
-    def getDataDuringScan(self):
-        curScanIndexPos = next(self.scanIterator)
-        self._setPixelData(curScanIndexPos, self._acquireData())
+    def getDataDuringScan(self, indexPos):
+        self._setPixelData(indexPos, self._acquireData())
         
         imageData = self._getIntensityMap()
-        curveData = self.getCurveData(curScanIndexPos)
-        self.lcdNumber_hyperValue.display(self._getPixelValue(curScanIndexPos))
+        curveData = self.getCurveData(indexPos)
+        self.lcdNumber_hyperValue.display(self._getPixelValue(indexPos))
         
         return imageData, curveData
     

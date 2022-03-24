@@ -17,10 +17,7 @@ import sys
 from logging_setup import getLogger
 logger = getLogger()
 
-from dataHandler import DataHandler
-
-class FinalMeta(type(QtWidgets.QWidget), type(DataHandler)):
-    pass
+from dataHandler import DataHandler, FinalMeta
 
 class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     def __init__(self, parent=None):
@@ -44,15 +41,10 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
         self.counterBuffer = deque([],maxlen=100)
         logger.info("Counter got data params")
         
-    def setScanIndexPath(self, scanIndexPath):
-        #scanIndexPath : List of tuples representing the scan current index position
-        self.scanIterator = iter(scanIndexPath)
-    
-    def getDataDuringScan(self):
+    def getDataDuringScan(self, indexPos):
         time.sleep(float(self.lineEdit_stepDelay.text())/1000) #seconds
         singleValue = self._acquireData()
-        curScanPos = next(self.scanIterator)
-        self._setPixelData(curScanPos, singleValue)
+        self._setPixelData(indexPos, singleValue)
         
         imageData = self._getIntensityMap()
         curveData = self._getDataBuffer()
