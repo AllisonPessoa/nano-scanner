@@ -9,7 +9,7 @@ import sys
 import os.path
 sys.path.append(os.path.abspath("instruments"))
 
-# INSTRUMENTS
+# INSTRUMENTS model is diff
 import piezoSystem
 import hyperspectral
 import counter
