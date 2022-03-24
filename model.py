@@ -13,6 +13,7 @@ sys.path.append(os.path.abspath("instruments"))
 import piezoSystem
 import hyperspectral
 import counter
+import digitalCounter
 
 from PyQt5 import QtCore
 
@@ -57,7 +58,8 @@ class Model(QtCore.QObject):
     def getScanModes(self):
         self.scanModes = {
             "Hyperspectral": hyperspectral.Hyperspectral(),
-            "Counter": counter.Counter()}
+            "Counter": counter.Counter(),
+            "Digital Counter": digitalCounter.DigitalCounter()}
         return self.scanModes
         
     def _roundToAxis(self, value, stepSize):
@@ -84,7 +86,6 @@ class Model(QtCore.QObject):
         logger.info("Scan Parameters changed")
         
     def startScan(self, mode):
-        logger.info("Scan Started")
         scanPath, indexScanPath = self._calculateSteps() ##Calculate previously the scan path
         totalScanLen = self.scanNumSteps['X']*self.scanNumSteps['Y']
         
@@ -94,7 +95,7 @@ class Model(QtCore.QObject):
                                        self.scanNumSteps['Y'])
         
         self.dataHandler.setScanIndexPath(indexScanPath)
-        
+        logger.info("Scan Started")
         pr = cProfile.Profile()
         pr.enable()
             
