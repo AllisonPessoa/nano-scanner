@@ -188,11 +188,17 @@ class Model(QtCore.QObject):
     def setPosition(self, pos):
         self.pos['X'] = self._roundToAxis(pos['X'], self.scanStepSize['X'])
         self.pos['Y'] = self._roundToAxis(pos['Y'], self.scanStepSize['Y'])
-        self.pos['Xindex'] = int(self.pos['X']/self.scanStepSize['X'])
-        self.pos['Yindex'] = int(self.pos['Y']/self.scanStepSize['Y'])
-        logger.info("Move pointer to x: %f, y: %f", \
-            self.pos['X'], self.pos['X'])
         
+        x_index = int((self.pos['X'] - (self.scanCenter['X'] -  self.scanRange['X']/2))/self.scanStepSize['X'])
+        y_index = int((self.pos['Y'] - (self.scanCenter['Y'] -  self.scanRange['Y']/2))/self.scanStepSize['Y'])
+        
+        if x_index >= 0 and x_index < self.scanNumSteps['X']\
+        and y_index >= 0 and y_index < self.scanNumSteps['Y']:
+            self.pos['Xindex'] = x_index
+            self.pos['Yindex'] = y_index
+        
+        logger.info("Move pointer to x: %f, y: %f", self.pos['X'], self.pos['X'])
+        print(self.pos['Xindex'])
         self.atualizeInterfacePos()
         if self.relMoveLocker == False:
             self.drivePiezo(self.pos)
