@@ -1,8 +1,12 @@
 # INSTRUMENTS
 import hyperspectral
 import counter
+import digitalCounter
 
-scanModes = {
-    "Hyperspectral": hyperspectral.Hyperspectral(),
-    "Counter": counter.Counter()
-}
+def getScanModes():
+    scanModes = {
+        "Hyperspectral": hyperspectral.Hyperspectral(),
+        "Counter": counter.Counter(),
+        "DigitalCounter": digitalCounter.DigitalCounter()
+    }
+    return scanModes

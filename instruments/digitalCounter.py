@@ -17,15 +17,12 @@ import sys
 from logging_setup import getLogger
 logger = getLogger()
 
-from dataHandler import DataHandler
-
-class FinalMeta(type(QtWidgets.QWidget), type(DataHandler)):
-    pass
+from dataHandler import DataHandler, FinalMeta
 
 class DigitalCounter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     def __init__(self, parent=None):
         super().__init__(parent)
-        loadUi("instruments/digitalCounter_layout.ui", self)
+        loadUi("instruments\digitalCounter_layout.ui", self)
         self.paired = False
         self.pushButton_updateList.clicked.connect(self._updateListPorts)
         self.pushButton_pair.clicked.connect(self._pairDevice)
@@ -37,14 +34,9 @@ class DigitalCounter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
         self._setDeviceParams()
         logger.info("Digital Counter got data params")
         
-    def setScanIndexPath(self, scanIndexPath):
-        #scanIndexPath : List of tuples representing the scan current index position
-        self.scanIterator = iter(scanIndexPath)
-    
-    def getDataDuringScan(self):
+    def getDataDuringScan(self, indexPos):
         singleValue = self._acquireData()
-        curScanPos = next(self.scanIterator)
-        self._setPixelData(curScanPos, singleValue)
+        self._setPixelData(indexPos, singleValue)
         
         imageData = self._getIntensityMap()
         curveData = self._getDataBuffer()
@@ -63,8 +55,8 @@ class DigitalCounter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
             logger.info("Digital Counter Closed")
 
     ### -------
-    def _setPixelData(self, pos, value):
-        self.imageMap[pos[0]][pos[1]] = value
+    def _setPixelData(self, index_pos, value):
+        self.imageMap[index_pos[0]][index_pos[1]] = value
         self.counterBuffer.append(value)
         self.lcdNumber_counterValue.display(value)
     

@@ -11,9 +11,7 @@ sys.path.append(os.path.abspath("instruments"))
 
 # INSTRUMENTS model is diff
 import piezoSystem
-import hyperspectral
-import counter
-import digitalCounter
+import instruments
 
 from PyQt5 import QtCore
 
@@ -41,6 +39,7 @@ class Model(QtCore.QObject):
         
         ### INSTRUMENTS INIT ###
         self.piezo = piezoSystem.PiezoCommunication(piezoParams)
+        self.scanModes = instruments.getScanModes()
         
         ### SAVING ###
         self.lastDir = ''
@@ -56,10 +55,6 @@ class Model(QtCore.QObject):
     emitProgress = QtCore.pyqtSignal(float)
     
     def getScanModes(self):
-        self.scanModes = {
-            "Hyperspectral": hyperspectral.Hyperspectral(),
-            "Counter": counter.Counter(),
-            "Digital Counter": digitalCounter.DigitalCounter()}
         return self.scanModes
         
     def _roundToAxis(self, value, stepSize):
@@ -89,12 +84,12 @@ class Model(QtCore.QObject):
         scanPath, indexScanPath = self._calculateSteps() ##Calculate previously the scan path
         totalScanLen = self.scanNumSteps['X']*self.scanNumSteps['Y']
         
-        modeKey = next(x for x in self.scanModes.keys() if x == mode)
-        self.dataHandler = self.scanModes[modeKey]
+        scanModes = self.getScanModes()
+        modeKey = next(x for x in scanModes.keys() if x == mode)
+        self.dataHandler = scanModes[modeKey]
         self.dataHandler.setDataParams(self.scanNumSteps['X'], \
                                        self.scanNumSteps['Y'])
         
-        self.dataHandler.setScanIndexPath(indexScanPath)
         logger.info("Scan Started")
         pr = cProfile.Profile()
         pr.enable()
@@ -102,7 +97,7 @@ class Model(QtCore.QObject):
         for index, pos in enumerate(scanPath):
             if self.scanAbort == False:
                 try:
-                    imageData, curveData = self.dataHandler.getDataDuringScan()
+                    imageData, curveData = self.dataHandler.getDataDuringScan(indexScanPath[index])
                     self.emitImageData.emit(imageData)
                     self.emitCurveData.emit(curveData)
                     
@@ -130,8 +125,9 @@ class Model(QtCore.QObject):
     def endApplication(self):
         self.drivePiezo({'X': 0, 'Y': 0})
         self.piezo.close()
-        for instrum in self.scanModes.keys():
-            self.scanModes[instrum].close()
+        scanModes = self.getScanModes()
+        for instrum in scanModes.keys():
+            scanModes[instrum].close()
         
     def finishScan(self):
         self.emitFinished.emit()
