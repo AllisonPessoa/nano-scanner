@@ -23,6 +23,12 @@ Clone this repository on GitHub or Download Zip.
 
 ### Dependencies
 
+nidaqmx==0.5.7
+numpy==1.18.4+mkl
+PyQt5==5.15.6
+pyqtgraph==0.12.3
+pyserial==3.5
+
 ## Documentation
 
 NanoScanner features Widgets Tool Tips, which means that when one places the mouse onto an object (e.g. Text Lines, Check Boxes, etc.), it shows a small text with important information heading the correct usage of the widget.

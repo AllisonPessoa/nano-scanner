@@ -4,6 +4,10 @@ Created on Tue Nov 23 16:25:27 2021
 
 @author: Nano2
 """
+import sys
+import pkg_resources
+
+#
 import numpy as np
 import time
 
@@ -12,17 +16,20 @@ from collections import deque
 
 from PyQt5.uic import loadUi
 from PyQt5 import QtWidgets
-import sys
 
+#
 from logging_setup import getLogger
 logger = getLogger()
 
-from dataHandler import DataHandler, FinalMeta
+from instruments.data_handler import DataHandler, FinalMeta
 
 class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     def __init__(self, parent=None):
         super().__init__(parent)
-        loadUi("instruments\counter_layout.ui", self)
+        file_layout = 'counter_layout.ui'  # always use slash
+        file_layout_path = pkg_resources.resource_filename('instruments.counter', file_layout)
+        loadUi(file_layout_path, self)
+        
         self.conversion = 0.002 #V/counts - instrument
         try:
             self.task = nidaqmx.Task()

@@ -4,25 +4,31 @@ Created on Tue Nov 23 16:25:27 2021
 
 @author: Nano2
 """
+import pkg_resources
+import sys
+#
 import numpy as np
 
 from collections import deque
 import serial
-from serial.tools import list_ports
 
 from PyQt5.uic import loadUi
 from PyQt5 import QtWidgets
-import sys
 
+#
 from logging_setup import getLogger
 logger = getLogger()
 
-from dataHandler import DataHandler, FinalMeta
+from instruments.data_handler import DataHandler, FinalMeta
 
 class DigitalCounter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     def __init__(self, parent=None):
         super().__init__(parent)
-        loadUi("instruments\digitalCounter_layout.ui", self)
+        
+        file_layout = 'digital_counter_layout.ui'  # always use slash
+        file_layout_path = pkg_resources.resource_filename('instruments.digitalcounter', file_layout)
+        loadUi(file_layout_path, self)
+        
         self.paired = False
         self.pushButton_updateList.clicked.connect(self._updateListPorts)
         self.pushButton_pair.clicked.connect(self._pairDevice)

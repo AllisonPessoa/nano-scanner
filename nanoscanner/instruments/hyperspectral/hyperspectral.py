@@ -4,25 +4,33 @@ Created on Tue Nov 23 16:25:27 2021
 
 @author: Nano2
 """
+import pkg_resources
+
+import os, sys, inspect
+currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+
+#
 import numpy as np
 
 from PyQt5.uic import loadUi
 from PyQt5 import QtWidgets
 
-import os
-import sys
 import time
 
+#
 from logging_setup import getLogger
 logger = getLogger()
 
-from dataHandler import DataHandler, FinalMeta
+from instruments.data_handler import DataHandler, FinalMeta
 
 class Hyperspectral(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     def __init__(self, parent=None):
         super().__init__(parent)
-        loadUi("instruments\hyper_layout.ui", self)
-        #self.fileName = r'C:\Users\Nano2\Desktop\Allison\Microscopia Hiperespectral\files\espectro.asc'
+
+        file_layout = 'hyper_layout.ui'  # always use slash
+        file_layout_path = pkg_resources.resource_filename('instruments.hyperspectral', file_layout)
+        loadUi(file_layout_path, self)
+        
         self.toolButton_selectFolder.clicked.connect(self._selectFolder)
         logger.info("Hyperspectral Started")
         

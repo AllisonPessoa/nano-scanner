@@ -5,11 +5,12 @@ Created on Mon Nov 15 15:25:12 2021
 
 @author: allison
 """
+import pkg_resources
 
 import nidaqmx
 from logging_setup import getLogger
 logger = getLogger()
-
+        
 class PiezoCommunication():
     """DAQ Communication"""
     def __init__(self, piezoParams):
@@ -19,8 +20,12 @@ class PiezoCommunication():
         self.finalVoltage = {'X': 0,
                              'Y': 0}
         
-        self._setPrevVoltage_security()
+        
         self.updateCalibrParams(piezoParams)
+                
+        self.security_file_path = pkg_resources.resource_filename('instruments.piezosystem', 'securityDAQvoltage.txt')
+        self._setPrevVoltage_security()
+        
         #Starting communication
         try:
             self.taskX = nidaqmx.Task()
@@ -94,9 +99,9 @@ class PiezoCommunication():
     def _saveCurVoltage_security(self):
         """Saves the current final voltage into a file.
         This file will be opened when the program starts and the voltage recovered"""
+        
         try:
-            fileName = 'securityDAQvoltage.txt'
-            securityFile = open(fileName, 'w')
+            securityFile = open(self.security_file_path, 'w')
             securityFile.write(str(self.finalVoltage['X']) +","+ \
                                str(self.finalVoltage['Y']))
             securityFile.close()
@@ -109,8 +114,7 @@ class PiezoCommunication():
     def _setPrevVoltage_security(self):
         """Opens the security file with the finals voltages. Sets as the current voltage"""
         try:
-            fileName = 'securityDAQvoltage.txt'
-            securityFile = open(fileName, 'r')
+            securityFile = open(self.security_file_path, 'r')
             voltageString = securityFile.read()
             securityFile.close()
             voltages = voltageString.split(',')

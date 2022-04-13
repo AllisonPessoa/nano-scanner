@@ -5,13 +5,9 @@ Created on Sat Nov 13 14:23:49 2021
 
 @author: allison
 """
-import sys
-import os.path
-sys.path.append(os.path.abspath("instruments"))
-
 # INSTRUMENTS model is diff
-import piezoSystem
-import instruments
+from instruments.piezosystem import piezo_system
+from instruments import instruments
 
 from PyQt5 import QtCore
 
@@ -38,7 +34,7 @@ class Model(QtCore.QObject):
         self.scanAbort = False
         
         ### INSTRUMENTS INIT ###
-        self.piezo = piezoSystem.PiezoCommunication(piezoParams)
+        self.piezo = piezo_system.PiezoCommunication(piezoParams)
         self.scanModes = instruments.getScanModes()
         
         ### SAVING ###
@@ -198,7 +194,7 @@ class Model(QtCore.QObject):
             self.pos['Yindex'] = y_index
         
         logger.info("Move pointer to x: %f, y: %f", self.pos['X'], self.pos['X'])
-        print(self.pos['Xindex'])
+        
         self.atualizeInterfacePos()
         if self.relMoveLocker == False:
             self.drivePiezo(self.pos)

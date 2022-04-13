@@ -3,17 +3,20 @@ DialogBox oppened by the Main User Interface. Contains the Piezoelectric System'
 """
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.uic import loadUi
-import pickle
-import sys
-import os.path
 
-#layout_form_piezo = uic.loadUiType("piezo_dialog.ui")[0]
+import pickle
+
+import sys, os
+import pkg_resources
 
 class PiezoDialog(QtWidgets.QDialog):
     Ok = QtCore.pyqtSignal()
     def __init__(self, parent=None):
         super().__init__(parent)
-        loadUi("dialogs\piezo_dialog.ui", self)
+        
+        file_layout = 'piezo_dialog.ui'  # always use slash
+        file_layout_path = pkg_resources.resource_filename(__name__, file_layout)
+        loadUi(file_layout_path, self)
         
         self.setWindowTitle("Piezoelectronic System Settings")
         self.loadInfo(self.comboBox.currentText())
@@ -27,7 +30,6 @@ class PiezoDialog(QtWidgets.QDialog):
 
     def cancelPushButton(self):
         self.close()
-    
     def getParameters(self):
         parameters = {
         "minDoubleSpinBox_x": self.minDoubleSpinBox_x.value(),
@@ -51,22 +53,26 @@ class PiezoDialog(QtWidgets.QDialog):
         }
         return parameters
     
-    def saveInfo(self, piezoFile):     
+    def saveInfo(self, piezoFileDescr):     
         parameters = self.getParameters()
-        filename = piezoFile.replace(" ", "")+'.plk'
-        
+        filename = piezoFileDescr.replace(" ", "")+'.plk'
+        file_path = pkg_resources.resource_filename('instruments.piezosystem', filename)
+
         try:
-            file = open(filename, 'wb')
+            file = open(file_path, 'wb')
             pickle.dump(parameters, file)
             file.close()
         except:
             QtWidgets.QErrorMessage().showMessage('Error on saving file')
 
-    def loadInfo(self, piezoFile):
-        if (os.path.isfile(piezoFile.replace(" ", "")+'.plk')):
-            filename = piezoFile.replace(" ", "")+'.plk'
+    def loadInfo(self, piezoFileDescr):
+
+        filename = piezoFileDescr.replace(" ", "")+'.plk'
+        file_piezo_path = pkg_resources.resource_filename('instruments.piezosystem', filename)
+
+        if (os.path.isfile(file_piezo_path)):
             try:
-                file = open(filename, 'rb')
+                file = open(file_piezo_path, 'rb')
                 parameters = pickle.load(file)
                 file.close()
 

@@ -4,23 +4,17 @@
 
 # @author: Allison Pessoa
 # """
-import sys
-import os.path
 
 #Interface
 from PyQt5 import QtWidgets, uic
-layout_form = uic.loadUiType("mainLayout.ui")[0]
+layout_form = uic.loadUiType("main_layout.ui")[0]
 
 #Graphics
-import graphs
+import plots
 
 #Dialogs
-sys.path.append(os.path.abspath("dialogs"))
-import piezo_dialog
-import errorBox
-
-#Controller
-import controller
+from dialogs import piezo_dialog
+from dialogs import errorBox
 
 #Logger
 import logging_setup
@@ -41,12 +35,12 @@ class View(QtWidgets.QMainWindow, layout_form):
         self.statusBar.showMessage("Welcome!")
         
         ### GRAPHICS ###
-        self.scanMapPlot = graphs.ScanMap(self.widget_positioningMap,
+        self.scanMapPlot = plots.ScanMap(self.widget_positioningMap,
                                           self.piezoDlg.getParameters())
         
-        self.curvePlot = graphs.CurvePlot(self.widget_spectrumPlot)
+        self.curvePlot = plots.CurvePlot(self.widget_spectrumPlot)
         
-        self.imagePlot = graphs.ImagePlot(self.widget_imagePlot)
+        self.imagePlot = plots.ImagePlot(self.widget_imagePlot)
         
         self.updateScanLimits()
         
@@ -177,7 +171,7 @@ class View(QtWidgets.QMainWindow, layout_form):
         self.label_xStepSize.setText('X Step Size: %.2f nm'%params["XstepSize"])
         self.label_yStepSize.setText('Y Step Size: %.2f nm'%params["YstepSize"])
         
-        #Graphs
+        #plots
         self.imagePlot.updateImageRect(params)
         self.scanMapPlot.updatePiezoMap(params)
         
@@ -201,7 +195,7 @@ class View(QtWidgets.QMainWindow, layout_form):
         self.statusBar.showMessage("Measurement finished")
         
     ##############
-    ### GRAPHS ###
+    ### plots ###
     ##############
     
     def updateCurveData(self, curveData):     
@@ -211,11 +205,3 @@ class View(QtWidgets.QMainWindow, layout_form):
     def updateImageData(self, imageData):
         self.imagePlot.updateImageData(imageData)
         QtWidgets.QApplication.processEvents()
-    
-if __name__ == '__main__':
-    
-    app = QtWidgets.QApplication(sys.argv)
-    window = View()
-    control = controller.Controller(window)
-    window.show()
-    app.exec_()
