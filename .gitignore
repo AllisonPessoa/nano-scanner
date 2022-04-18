@@ -1,6 +1,5 @@
 # .gitignore
 __pycache__
 app.log
-TRITOR100SG.plk
 profile.txt
-files/espectro.asc
+venv/

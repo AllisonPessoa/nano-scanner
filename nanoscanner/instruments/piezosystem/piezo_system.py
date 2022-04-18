@@ -154,4 +154,4 @@ class PiezoCommunication():
         
 if __name__ == "__main__":
     piezo = PiezoCommunication()
-    piezo.close()
+    #piezo.close()
