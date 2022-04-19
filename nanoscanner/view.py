@@ -26,7 +26,6 @@ class View(QtWidgets.QMainWindow):
         QtWidgets.QWidget.__init__(self,parent)
         file_layout = 'main_layout.ui'  # always use slash
         file_layout_path = pkg_resources.resource_filename(__name__, file_layout)
-        print(file_layout_path)
         uic.loadUi(file_layout_path, self)
 
         ### AUXILIAR DIALOGS ###
