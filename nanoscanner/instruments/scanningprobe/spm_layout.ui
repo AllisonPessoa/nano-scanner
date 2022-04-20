@@ -221,10 +221,16 @@ selection-color: rgb(255, 255, 255);</string>
     </rect>
    </property>
    <property name="maximum">
-    <number>10</number>
+    <number>100</number>
+   </property>
+   <property name="singleStep">
+    <number>1</number>
+   </property>
+   <property name="pageStep">
+    <number>100</number>
    </property>
    <property name="value">
-    <number>5</number>
+    <number>50</number>
    </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
@@ -236,7 +242,7 @@ selection-color: rgb(255, 255, 255);</string>
   <widget class="QLineEdit" name="lineEdit_sampleTime">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>120</x>
      <y>150</y>
      <width>41</width>
      <height>20</height>
@@ -317,10 +323,10 @@ selection-color: rgb(255, 255, 255);</string>
     <string>to</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_scanTime">
+  <widget class="QLineEdit" name="lineEdit_stepDelay">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>120</x>
      <y>170</y>
      <width>41</width>
      <height>20</height>
@@ -335,7 +341,7 @@ selection-color: rgb(255, 255, 255);</string>
     <rect>
      <x>10</x>
      <y>170</y>
-     <width>91</width>
+     <width>101</width>
      <height>20</height>
     </rect>
    </property>
@@ -346,7 +352,7 @@ selection-color: rgb(255, 255, 255);</string>
     <string/>
    </property>
    <property name="text">
-    <string>Scan Time (ms)</string>
+    <string>Scan Step Time (ms)</string>
    </property>
   </widget>
   <widget class="QDoubleSpinBox" name="doubleSpinBox_setPoint">
@@ -366,6 +372,28 @@ selection-color: rgb(255, 255, 255);</string>
    </property>
    <property name="value">
     <double>5.000000000000000</double>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_startTracking">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>90</y>
+     <width>81</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(170, 255, 127);</string>
+   </property>
+   <property name="text">
+    <string>Start Tracking</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
    </property>
   </widget>
  </widget>
