@@ -1,3 +1,3 @@
 @echo off
-"C:\Users\AllisonPessoa\Documents\GitHub\nano-scanner\venv\Scripts\python.exe" "C:\Users\AllisonPessoa\Documents\GitHub\nano-scanner\nanoscanner\__init__.py"
+"C:\Users\Nano2\Desktop\Allison\WPy64-3771\python-3.7.7.amd64\python.exe" "C:\Users\Nano2\Desktop\Allison\Microscopia Hiperespectral\nanoscanner\__init__.py"
 pause
