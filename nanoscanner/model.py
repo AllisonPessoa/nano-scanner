@@ -11,10 +11,6 @@ from instruments import instruments
 
 from PyQt5 import QtCore
 
-import cProfile
-import pstats
-import io
-
 from logging_setup import getLogger
 logger = getLogger()
 
@@ -87,8 +83,6 @@ class Model(QtCore.QObject):
                                        self.scanNumSteps['Y'])
         
         logger.info("Scan Started")
-        pr = cProfile.Profile()
-        pr.enable()
             
         for index, pos in enumerate(scanPath):
             if self.scanAbort == False:
@@ -109,13 +103,8 @@ class Model(QtCore.QObject):
             else:
                 break
         
-        pr.disable()
-        s = io.StringIO()
-        ps = pstats.Stats(pr, stream=s).sort_stats('tottime')
-        ps.print_stats()
-        with open('profile.txt', 'w+') as f:
-            f.write(s.getvalue())
-            
+        self.setPosition(pos)
+        self.atualizeInterfacePos()
         self.finishScan()
     
     def endApplication(self):
@@ -230,7 +219,7 @@ class Model(QtCore.QObject):
     
     def moveCenter(self, posCenter):
         self.scanCenter = posCenter
-        self.drivePiezo(self.scanCenter)
+        #self.drivePiezo(self.scanCenter)
         self.emitCenterPos.emit(self.scanCenter)
      
     def setScanCenter(self):

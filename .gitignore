@@ -3,3 +3,4 @@ __pycache__
 app.log
 profile.txt
 venv/
+nanoscanner/files/espectro.asc
