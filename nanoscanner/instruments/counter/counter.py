@@ -37,19 +37,10 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
 
         self.lineEdit_stepDelay.editingFinished.connect(self._updateStepDelay)
         self.lineEdit_convFactor.editingFinished.connect(self._updateConvFactor)
+        self.comboBox_analogChannel.currentIndexChanged.connect(self._changeAnalogInput)
         self._updateStepDelay()
         self._updateConvFactor()
-
-        try:
-            self.task = nidaqmx.Task()
-            self.task.ai_channels.add_ai_voltage_chan("Dev1/ai1")
-            self.task.start()
-            self.label_deviceStatus.setText("Connected.")
-            logger.info("Counter Started")
-
-        except Exception as erro:
-            self.label_deviceStatus.setText("Disconnected. - Erro. See Log File")
-            logger.exception("Error on starting Piezo")
+        self._startAnalogInput()
 
     def setDataParams(self, Xdim, Ydim):
         self.dim = (Xdim,Ydim)
@@ -79,10 +70,27 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
             self.task.close()
             logger.info("Counter Closed")
         except Exception as erro:
-            self.label_deviceStatus.setText("Device not propery closed. "+erro[0])
+            self.label_deviceStatus.setText("Device not propery closed. " + erro)
             logger.exception("Error on closing Piezo")
 
     ### -------
+    def _startAnalogInput(self):
+        try:
+            self.task = nidaqmx.Task()
+            channel = self.comboBox_analogChannel.currentText()
+            self.task.ai_channels.add_ai_voltage_chan(channel)
+            self.task.start()
+            self.label_deviceStatus.setText("Connected. Channel " + channel)
+            logger.info("Counter Started - channel " + channel)
+
+        except Exception as erro:
+            self.label_deviceStatus.setText("Disconnected. - Erro. See Log File")
+            logger.exception("Error on starting Piezo")
+    
+    def _changeAnalogInput(self):
+        self.close()
+        self._startAnalogInput()
+        
     def _setPixelData(self, pos, value):
         value = value/self.convFactor
         self.imageMap[pos[0]][pos[1]] = value
