@@ -2,16 +2,18 @@
 
 ## Overview
 
-NanoScanner is an environment to perform scan imaging of micro and nanosystems. It executes sample pixel-by-pixel scan, with nanometric spatial resolution, while acquires information from any desired peripheral instrument that is interacting with the nanosystem. This brings the versatility of building images from numerous physical parameters. Applications performed with the Software includes:
-* Luminescence image of single micro and nanoparticles (the detected signal is a photocounter counts)
-* Hyperspectral image of single micro and nanoparticles (the detected signal is an entire spectrum by a spectrometer)
-* Topography image by SPM (Scanning Probe Microscopy) setup (the detected signal is the frequency shift of the tuning fork that interacts with the sample)
-* Scanning Near-field Optical Microscoy (SNOM) (the detected signal is the near-field light - by photodetectors or spectrometers, which is interacting with the scanning tip)
+NanoScanner is an environment to perform scan imaging of micro and nanosystems. It executes sample pixel-by-pixel scanning, with nanometric spatial resolution (depending on the translation stage), while acquires information from any desired peripheral instrument that is measuring at real time, just requiring a simple script for each new instrument. This brings the versatility of building images from numerous physical parameters. 
+
+Applications performed with the Software includes:
+* Scanning Optical Microscopy;
+* Hyperspectral Optical Microscopy;
+* Topography image by SPM (Scanning Probe Microscopy);
+* Scanning Near-field Optical Microscoy (SNOM);
 * Among others
 
-NanoScanner provides the versatility of easily implementing new instruments and their controls for acquiring data, which means that NanoScanner's heart is the accurate position control in nanoscale in synchronization with data acquisition. A piezoelectric system controls the sample position in three axis. To provide the necessary voltage to drive the piezo, this software interfaces with a Digital-to-Analog converter (DAC) (National Instruments) which is connected to a ultra-stable voltage amplifier.
+NanoScanner provides the versatility of easily implementing new instruments and their controls for acquiring data, which means that NanoScanner's heart is the accurate position control in micro/nanoscale in synchronization with data acquisition. Generally, the translational stage is a piezoelectric system which controls the sample position in three axis. To provide the necessary voltage to drive the piezo, this software interfaces with a Digital-to-Analog converter (DAC) (National Instruments) which is connected to a ultra-stable voltage amplifier.
 
-Originally, this software was developed for imaging rare-earth-doped dielectric nanoparticles interacting with light. Thus, the built-in peripherals are specific for communicating with the instruments available in our Laboratories, which are:
+Originally, this software was developed to study the interaction of rare-earth-doped dielectric nanoparticles with light. Thus, the built-in peripherals to acquire data are specific for communicating with the instruments available in our Laboratories, which are:
 
 * **National Instruments ADC (Analog-to-Digital Converter)**: Reads the analog output from a home-assembled photon counter, which counts the number of incoming pulses from the photodetector and transforms it to a voltage level. Also can be used to read the output of a Lock-in amplifier in the Scanning Probe Microscope, which represents que distance of the to the sample, allowing builiding nanoscopic tophography images.
 
@@ -19,23 +21,38 @@ Originally, this software was developed for imaging rare-earth-doped dielectric 
 
 ## Installation
 
-Clone this repository on GitHub or Download Zip.
+This software was written in Python 3.8.10. There are some compatibilities problems with older or newer versions of python due to third-part libraries. I recommend you installing a standalone python folder, detached from your current version, for example:
+1) Clone this repository on GitHub or Download Zip and extract in a directory of your wish
+2) download this [WinPython](https://sourceforge.net/projects/winpython/files/WinPython_3.8/3.8.10.0/) distribution and save it in a directory of your wish
+4) Inside the WPy64-31080 folder, run the WinPython Command Prompt.exe
+5) cd to the nano-scanner folder
+6) run: <pip install -r requirements.txt>
+7) To open the program, run: <python nanoscanner/__init__.py>
+
+To create a shortcut to open the program from the Desktop, for example, rewrite the NanoScanner.bat file: 
+
+    @echo off
+    "directory_to_Python38100\python-3.8.10.amd64\python.exe" "directory_to_nanoscanner\nanoscanner\__init__.py"
+    pause
+
+Then just click with the right button in the NanoScanner.bat file -> Send to -> Desktop (create shortcut)
 
 ### Dependencies
 
-nidaqmx==0.5.7
-numpy==1.18.4+mkl
-PyQt5==5.15.6
-pyqtgraph==0.12.3
-pyserial==3.5
+* nidaqmx==0.5.7
+* numpy==1.18.4
+* PyQt5==5.15.6
+* pyqtgraph==0.12.3
+* pyserial==3.5
+* setuptools==46.4.0
 
 ## Documentation
 
-NanoScanner features Widgets Tool Tips, which means that when one places the mouse onto an object (e.g. Text Lines, Check Boxes, etc.), it shows a small text with important information heading the correct usage of the widget.
+NanoScanner features Widgets Tool Tips, which means that when one places the mouse onto an object (e.g. Text Lines, Check Boxes, etc.), it shows a small text with important information regarding the correct usage of the widget.
 
 ### Positioning Control
 
-The positioning control is responsible for moving the sample through the space in the three cartesian directions. A coarse movement is adjusted by changing the scan center, while a fine movement is set either by clicking on the Image Plot or by pressing the arrow buttons on keyboard (top, bottom, left, right for 2D positioning on the same Z-plane, ~~and pgUp, pgDn for modifying the Z position~~). The range of the fine movement and the step size are defined in the scan properties panel. Once this properties are changes, the current image is lost and a new empty image is shown. 
+The positioning control is responsible for moving the sample through the space in the three cartesian directions. A coarse movement is adjusted by changing the scan center, while a fine movement is set either by clicking on the Image Plot or by pressing the arrow buttons on keyboard (top, bottom, left, right for 2D positioning on the same Z-plane, ~~and pgUp, pgDn for modifying the Z position~~). The range of the fine movement and the step size are defined in the scan properties pannel. Once this properties are changes, the current image is lost and a new empty image is shown. 
 
 There are lockers to the movement in order to keep it safe. If the 'Locker Rel Movement' checkBoxe is checked, the software will not drive voltage to the piezo, but the positioning system still works and the corresponding pixel's data are still showed (If the scan data is hyperspectral).
 
@@ -107,5 +124,6 @@ Once 'Start Scan' pushButton is pressed, most of the functionalities of the user
 The raw data, as a numpy file '.npy', can be exported to a selected folder. The checkbox mark the desired export options. Also the .png images can be exported, either directly by clicking in the right mouse button inside the plot, or by selecting the corresponding option in the checkbox.
 
 ## Credits
-This software was developed by Allison Pessoa for the Nano-Optics Laboratory in Federal University of Pernambuco, Recife-PE, Brazil,
-Contact: allison.pessoa@upfe.br | allisonpessoa@hotmail.com
+This software was developed by Allison Pessoa for the Nano-Optics Laboratory in Federal University of Pernambuco, Recife-PE, Brazil.  
+Also used by the author in the Ultrafast Lab of the Chair in Hybrid Nanosystems of the Physics Department at the Ludwig-Maximilians-Universität München, Germany.  
+Contact: a.pessoa@physik.uni-muenchen.de | allison.pessoa@upfe.br | allisonpessoa@hotmail.com
