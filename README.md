@@ -26,8 +26,8 @@ This software was written in Python 3.8.10. There are some compatibilities probl
 2) download this [WinPython](https://sourceforge.net/projects/winpython/files/WinPython_3.8/3.8.10.0/) distribution and save it in a directory of your wish
 4) Inside the WPy64-31080 folder, run the WinPython Command Prompt.exe
 5) cd to the nano-scanner folder
-6) run: <pip install -r requirements.txt>
-7) To open the program, run: <python nanoscanner/__init__.py>
+6) run: `pip install -r requirements.txt`
+7) To open the program, run: `python nanoscanner/__init__.py`
 
 To create a shortcut to open the program from the Desktop, for example, rewrite the NanoScanner.bat file: 
 
