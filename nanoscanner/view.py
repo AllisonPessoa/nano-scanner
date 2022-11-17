@@ -176,7 +176,7 @@ class View(QtWidgets.QMainWindow):
 
         #plots
         self.imagePlot.updateImageRect(params)
-        self.scanMapPlot.updatePiezoMap(params)
+        self.scanMapPlot.updatePiezoMap(params, self.piezoDlg.getParameters())
 
         self.statusBar.showMessage("Limits Updated")
         logger.info("Scan Limits Updated")
