@@ -1,0 +1,11 @@
+<RCC>
+  <qresource prefix="capture_icon">
+    <file>icons8-cameras-30.png</file>
+  </qresource>
+  <qresource prefix="record_icon">
+    <file>icons8-circled-play-50.png</file>
+  </qresource>
+  <qresource prefix="stop_icon">
+    <file>icons8-cancel-64.png</file>
+  </qresource>
+</RCC>

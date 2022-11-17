@@ -69,8 +69,13 @@ class Controller():
 
         #~Buttons
         self._view.pushButton_startMeasurement.clicked.connect(self.startScan)
+        self._view.pushButton_startAcquision.clicked.connect(self.startRecordMode)
+        self._view.pushButton_stopAcquisition.clicked.connect(self.stopRecordMode)
         self._view.pushButton_exportData.clicked.connect(self.exportData)
+
         self._view.pushButton_setCenter.clicked.connect(self._model.setScanCenter)
+        self._view.pushButton_capture.clicked.connect(self._model.singleCaptureMode)
+
 
         ########################
         ##### MENU ACTIONS #####
@@ -141,6 +146,23 @@ class Controller():
     def finishScan(self):
         self.executionThread.quit()
         self._view.finishScan()
+
+    def startRecordMode(self):
+        self.executionThread = QtCore.QThread()
+        self._model.moveToThread(self.executionThread)
+        #Starting
+        mode = self._view.tabWidget_modes.tabText(\
+                             self._view.tabWidget_modes.currentIndex())
+        self._model.recording = True
+        self._view.startRecordMode()
+        self.executionThread.started.connect(lambda: self._model.startRecordMode(mode))
+        self.executionThread.start()
+
+    def stopRecordMode(self):
+        self._model.recording = False
+        self.executionThread.quit()
+        self._view.stopRecordMode()
+        logger.info("Scan Aborted")
 
     def changeScanProperties(self):
         scanParams = self._view.getScanParams()

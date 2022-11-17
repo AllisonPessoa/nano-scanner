@@ -17,7 +17,6 @@ from collections import deque
 from PyQt5.uic import loadUi
 from PyQt5 import QtWidgets
 
-#
 from logging_setup import getLogger
 logger = getLogger()
 
@@ -73,6 +72,12 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
             self.label_deviceStatus.setText("Device not propery closed. " + erro)
             logger.exception("Error on closing Piezo")
 
+    def getSingleShot(self):
+        singleShot = self._acquireData()
+        self.lcdNumber_counterValue.display(singleShot)
+
+        return None
+
     ### -------
     def _startAnalogInput(self):
         try:
@@ -86,11 +91,11 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
         except Exception as erro:
             self.label_deviceStatus.setText("Disconnected. - Erro. See Log File")
             logger.exception("Error on starting Piezo")
-    
+
     def _changeAnalogInput(self):
         self.close()
         self._startAnalogInput()
-        
+
     def _setPixelData(self, pos, value):
         value = value/self.convFactor
         self.imageMap[pos[0]][pos[1]] = value

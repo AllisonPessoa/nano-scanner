@@ -159,8 +159,11 @@ selection-color: rgb(255, 255, 255);</string>
    <property name="editable">
     <bool>false</bool>
    </property>
+   <property name="currentText">
+    <string>Dev1/ai0</string>
+   </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <item>
     <property name="text">

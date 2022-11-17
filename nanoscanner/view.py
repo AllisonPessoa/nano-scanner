@@ -8,7 +8,7 @@
 #Interface
 import pkg_resources
 from PyQt5 import QtWidgets, uic
-#layout_form = uic.loadUiType("main_layout.ui")[0]
+from icons import icons_rc
 
 #Graphics
 import plots
@@ -73,6 +73,9 @@ class View(QtWidgets.QMainWindow):
         self.horizontalSlider_curYpos.setDisabled(disabled)
         #checkbox
         self.checkBox_lockAbsPosition.setDisabled(disabled)
+        #pushButton
+        self.pushButton_startAcquision.setDisabled(disabled)
+        self.pushButton_capture.setDisabled(disabled)
 
     #######################
     ### GENERAL SETTERS ###
@@ -195,6 +198,18 @@ class View(QtWidgets.QMainWindow):
         self.pushButton_startMeasurement.setStyleSheet("background-color: rgb(170, 255, 127);")
         self.updateProgressBar(0)
         self.pushButton_startMeasurement.setText("Start Measurement")
+        self.statusBar.showMessage("Measurement finished")
+
+    def startRecordMode(self):
+        """Lock interface and change start pushButton status to allow abortion"""
+        self.lockInterface(True)
+        self.pushButton_stopAcquisition.setEnabled(True)
+        self.statusBar.showMessage("Recording Mode in running")
+
+    def stopRecordMode(self):
+        """Unlock interface and change start pushButton status to allow start again"""
+        self.lockInterface(False)
+        self.pushButton_stopAcquisition.setEnabled(False)
         self.statusBar.showMessage("Measurement finished")
 
     ##############

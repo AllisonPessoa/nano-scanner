@@ -96,13 +96,6 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0" colspan="2">
-      <widget class="QLabel" name="label_xStepSize">
-       <property name="text">
-        <string>X Step Size: 100 nm</string>
-       </property>
-      </widget>
-     </item>
      <item row="3" column="0">
       <widget class="Line" name="line">
        <property name="orientation">
@@ -157,6 +150,13 @@
       <widget class="QLabel" name="label_yStepSize">
        <property name="text">
         <string>Y Step Size: 100 nm</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="2">
+      <widget class="QLabel" name="label_xStepSize">
+       <property name="text">
+        <string>X Step Size: 100 nm</string>
        </property>
       </widget>
      </item>
@@ -280,7 +280,7 @@
      <item row="4" column="0">
       <widget class="QLabel" name="currentZPositionMLabel">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>Current Z Position (nm)</string>
@@ -290,7 +290,7 @@
      <item row="4" column="1">
       <widget class="QSpinBox" name="currentZPositionMSpinBox">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="maximum">
         <number>100000</number>
@@ -309,7 +309,7 @@
         <enum>Qt::StrongFocus</enum>
        </property>
        <property name="maximum">
-        <number>1000</number>
+        <number>10000</number>
        </property>
        <property name="singleStep">
         <number>100</number>
@@ -543,7 +543,7 @@ p, li { white-space: pre-wrap; }
      <item row="5" column="0">
       <widget class="QLabel" name="currentZPositionMLabel_2">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>Z Position (nm)</string>
@@ -623,19 +623,26 @@ p, li { white-space: pre-wrap; }
       <x>440</x>
       <y>580</y>
       <width>191</width>
-      <height>71</height>
+      <height>111</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
        <item>
-        <widget class="QLabel" name="label_15">
+        <widget class="QLabel" name="label_6">
          <property name="text">
           <string>X-Voltage</string>
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QLCDNumber" name="lcdNumber_XVoltage"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QLabel" name="label_14">
          <property name="text">
@@ -643,15 +650,22 @@ p, li { white-space: pre-wrap; }
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QLCDNumber" name="lcdNumber_YVoltage"/>
+       </item>
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QLCDNumber" name="lcdNumber_XVoltage"/>
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Z-voltage</string>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QLCDNumber" name="lcdNumber_YVoltage"/>
+        <widget class="QLCDNumber" name="lcdNumber_ZVoltage"/>
        </item>
       </layout>
      </item>
@@ -918,6 +932,60 @@ p, li { white-space: pre-wrap; }
      <string>CurvePlot Raw Data</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="pushButton_capture">
+    <property name="geometry">
+     <rect>
+      <x>1120</x>
+      <y>340</y>
+      <width>31</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset resource="icons/icons.qrc">
+      <normaloff>:/capture_icon/icons8-cameras-30.png</normaloff>:/capture_icon/icons8-cameras-30.png</iconset>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_startAcquision">
+    <property name="geometry">
+     <rect>
+      <x>1170</x>
+      <y>340</y>
+      <width>31</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset resource="icons/icons.qrc">
+      <normaloff>:/record_icon/icons8-circled-play-50.png</normaloff>:/record_icon/icons8-circled-play-50.png</iconset>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_stopAcquisition">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>1220</x>
+      <y>340</y>
+      <width>31</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset resource="icons/icons.qrc">
+      <normaloff>:/stop_icon/icons8-cancel-64.png</normaloff>:/stop_icon/icons8-cancel-64.png</iconset>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -1035,6 +1103,8 @@ p, li { white-space: pre-wrap; }
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="icons/icons.qrc"/>
+ </resources>
  <connections/>
 </ui>
