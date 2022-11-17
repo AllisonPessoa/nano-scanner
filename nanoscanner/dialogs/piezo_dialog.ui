@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>10</y>
+     <y>50</y>
      <width>111</width>
      <height>16</height>
     </rect>
@@ -129,10 +129,10 @@
        <number>0</number>
       </property>
       <property name="maximum">
-       <double>100000.000000000000000</double>
+       <double>1000000.000000000000000</double>
       </property>
       <property name="value">
-       <double>61300.000000000000000</double>
+       <double>10.000000000000000</double>
       </property>
      </widget>
     </item>
@@ -241,7 +241,7 @@
        <number>0</number>
       </property>
       <property name="maximum">
-       <double>100000.000000000000000</double>
+       <double>1000000.000000000000000</double>
       </property>
       <property name="value">
        <double>61300.000000000000000</double>
@@ -391,88 +391,70 @@
   <widget class="QWidget" name="formLayoutWidget_4">
    <property name="geometry">
     <rect>
-     <x>420</x>
-     <y>10</y>
+     <x>410</x>
+     <y>30</y>
      <width>160</width>
-     <height>61</height>
+     <height>51</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout_4">
     <item row="0" column="0">
-     <widget class="QLabel" name="serialNumberLabel">
+     <widget class="QLabel" name="label_2">
       <property name="text">
-       <string>Serial Number</string>
+       <string>Name</string>
       </property>
      </widget>
     </item>
     <item row="0" column="1">
-     <widget class="QLineEdit" name="serialNumberLineEdit">
+     <widget class="QLineEdit" name="lineEdit_PiezosName">
+      <property name="text">
+       <string>TRITOR</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="serialNumberLabel">
+      <property name="text">
+       <string>ID Number</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="lineEdit_IDnumber">
       <property name="text">
        <string>96053</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="orderNumberLabel">
-      <property name="text">
-       <string>Order Number</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QLineEdit" name="orderNumberLineEdit">
-      <property name="text">
-       <string>6621000</string>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
-  <widget class="QPushButton" name="pushButton_3">
+  <widget class="QPushButton" name="pushButton_newPiezo">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>40</y>
-     <width>101</width>
+     <x>20</x>
+     <y>10</y>
+     <width>81</width>
      <height>23</height>
     </rect>
    </property>
    <property name="text">
-    <string>Add new Item</string>
+    <string>Create New</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="comboBox">
+  <widget class="QComboBox" name="comboBox_piezosName">
    <property name="geometry">
     <rect>
-     <x>150</x>
-     <y>10</y>
-     <width>191</width>
+     <x>130</x>
+     <y>50</y>
+     <width>131</width>
      <height>22</height>
     </rect>
    </property>
-   <item>
-    <property name="text">
-     <string>TRITOR 100 SG</string>
-    </property>
-   </item>
-  </widget>
-  <widget class="QPushButton" name="pushButton_4">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>250</x>
-     <y>40</y>
-     <width>101</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Delete Item</string>
+   <property name="currentText">
+    <string/>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_5">
@@ -521,6 +503,19 @@
    </property>
    <property name="text">
     <string>Add Z-Hysteresis Curve</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_setDefaut">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>50</y>
+     <width>81</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Set as Defaut</string>
    </property>
   </widget>
  </widget>

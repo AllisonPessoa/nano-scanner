@@ -9,29 +9,58 @@ import pickle
 import sys, os
 import pkg_resources
 
+from logging_setup import getLogger
+logger = getLogger()
+
 class PiezoDialog(QtWidgets.QDialog):
     Ok = QtCore.pyqtSignal()
     def __init__(self, parent=None):
         super().__init__(parent)
-        
+
         file_layout = 'piezo_dialog.ui'  # always use slash
         file_layout_path = pkg_resources.resource_filename(__name__, file_layout)
         loadUi(file_layout_path, self)
-        
         self.setWindowTitle("Piezoelectronic System Settings")
-        self.loadInfo(self.comboBox.currentText())
+
+        dir = pkg_resources.resource_filename('instruments.piezosystem', "")
+        self.comboBox_piezosName.addItem('defaultPiezo')
+        for file in os.listdir(dir):
+            if file.endswith(".plk") == 1 and file != "defaultPiezo.plk":
+                self.comboBox_piezosName.addItem(file.replace(".plk",""))
+
+        self.comboBox_piezosName.currentIndexChanged.connect(lambda: self.loadInfo(self.comboBox_piezosName.currentText()))
+        self.pushButton_setDefaut.clicked.connect(self.setDefaultPiezo)
+        self.pushButton_newPiezo.clicked.connect(self.createNewPiezo)
         self.pushButton_ok.clicked.connect(self.okPushButton)
         self.pushButton_cancel.clicked.connect(self.cancelPushButton)
 
+        self.loadInfo('defaultPiezo')
+
+    def setDefaultPiezo(self):
+        self.saveInfo('defaultPiezo')
+        self.comboBox_piezosName.setCurrentIndex(0)
+
+    def createNewPiezo(self):
+        name, ok = QtWidgets.QInputDialog.getText(self, 'PiezoSytemName', 'Enter the piezo`s name:')
+        if ok:
+            self.comboBox_piezosName.addItem(name)
+            self.saveInfo(name)
+            index = self.comboBox_piezosName.findText(name)
+            self.comboBox_piezosName.setCurrentIndex(index)
+            logger.info("Piezo " + name + " created.")
+
     def okPushButton(self):
         self.Ok.emit()
-        self.saveInfo(self.comboBox.currentText())
+        self.saveInfo(self.comboBox_piezosName.currentText())
         self.close()
 
     def cancelPushButton(self):
         self.close()
+
     def getParameters(self):
         parameters = {
+        "name": self.lineEdit_PiezosName.text(),
+        "IDnumber": self.lineEdit_IDnumber.text(),
         "minDoubleSpinBox_x": self.minDoubleSpinBox_x.value(),
         "minDoubleSpinBox_y": self.minDoubleSpinBox_y.value(),
         "minDoubleSpinBox_z": self.minDoubleSpinBox_z.value(),
@@ -52,11 +81,12 @@ class PiezoDialog(QtWidgets.QDialog):
         "maxHysteresisSpinBox_z": self.maxHysteresisSpinBox_z.value(),
         }
         return parameters
-    
-    def saveInfo(self, piezoFileDescr):     
+
+    def saveInfo(self, piezoFileDescr):
         parameters = self.getParameters()
-        filename = piezoFileDescr.replace(" ", "")+'.plk'
+        filename = piezoFileDescr + '.plk'
         file_path = pkg_resources.resource_filename('instruments.piezosystem', filename)
+        logger.info("Piezo " + piezoFileDescr + " saved successfully.")
 
         try:
             file = open(file_path, 'wb')
@@ -67,7 +97,7 @@ class PiezoDialog(QtWidgets.QDialog):
 
     def loadInfo(self, piezoFileDescr):
 
-        filename = piezoFileDescr.replace(" ", "")+'.plk'
+        filename = piezoFileDescr + '.plk'
         file_piezo_path = pkg_resources.resource_filename('instruments.piezosystem', filename)
 
         if (os.path.isfile(file_piezo_path)):
@@ -75,7 +105,8 @@ class PiezoDialog(QtWidgets.QDialog):
                 file = open(file_piezo_path, 'rb')
                 parameters = pickle.load(file)
                 file.close()
-
+                self.lineEdit_PiezosName.setText(parameters["name"])
+                self.lineEdit_IDnumber.setText(parameters["IDnumber"])
                 self.minDoubleSpinBox_x.setValue(parameters["minDoubleSpinBox_x"])
                 self.minDoubleSpinBox_y.setValue(parameters["minDoubleSpinBox_y"])
                 self.minDoubleSpinBox_z.setValue(parameters["minDoubleSpinBox_z"])
@@ -95,12 +126,13 @@ class PiezoDialog(QtWidgets.QDialog):
                 self.maxHysteresisSpinBox_y.setValue(parameters["maxHysteresisSpinBox_y"])
                 self.maxHysteresisSpinBox_z.setValue(parameters["maxHysteresisSpinBox_z"])
 
+                logger.info("Piezo " + piezoFileDescr + " settings changed successfully.")
             except:
                 QtWidgets.QErrorMessage().showMessage('Error on loading file')
 
         else:
-            print("Did not find a Piezo file to load. Loading the default parameters.")
-        
+            logger.info("Did not find a Piezo file to load. Nothing changed.")
+
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     piezoDlg = PiezoDialog()
