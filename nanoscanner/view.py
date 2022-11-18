@@ -187,6 +187,7 @@ class View(QtWidgets.QMainWindow):
     def startScan(self):
         """Lock interface and change start pushButton status to allow abortion"""
         self.lockInterface(True)
+        self.pushButton_stopAcquisition.setEnabled(False) #The pushbutton of the recording mode
         self.pushButton_startMeasurement.setStyleSheet("background-color: rgb(255, 170, 127);")
         self.pushButton_startMeasurement.setText("Abort Measurement")
         self.statusBar.showMessage("Scan in running")
@@ -194,6 +195,7 @@ class View(QtWidgets.QMainWindow):
     def finishScan(self):
         """Unlock interface and change start pushButton status to allow start again"""
         self.lockInterface(False)
+        self.pushButton_stopAcquisition.setEnabled(True) #The pushbutton of the recording mode
         self.pushButton_startMeasurement.setChecked(False)
         self.pushButton_startMeasurement.setStyleSheet("background-color: rgb(170, 255, 127);")
         self.updateProgressBar(0)
@@ -203,12 +205,14 @@ class View(QtWidgets.QMainWindow):
     def startRecordMode(self):
         """Lock interface and change start pushButton status to allow abortion"""
         self.lockInterface(True)
+        self.pushButton_startMeasurement.setEnabled(False)
         self.pushButton_stopAcquisition.setEnabled(True)
         self.statusBar.showMessage("Recording Mode in running")
 
     def stopRecordMode(self):
         """Unlock interface and change start pushButton status to allow start again"""
         self.lockInterface(False)
+        self.pushButton_startMeasurement.setEnabled(True)
         self.pushButton_stopAcquisition.setEnabled(False)
         self.statusBar.showMessage("Measurement finished")
 
