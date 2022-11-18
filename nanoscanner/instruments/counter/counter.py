@@ -2,7 +2,7 @@
 """
 Created on Tue Nov 23 16:25:27 2021
 
-@author: Nano2
+@author: Allison
 """
 import sys
 import pkg_resources
@@ -34,23 +34,23 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
         file_layout_path = pkg_resources.resource_filename('instruments.counter', file_layout)
         loadUi(file_layout_path, self)
 
-        self.lineEdit_stepDelay.editingFinished.connect(self._updateStepDelay)
+        self.counterBuffer = deque([],maxlen=100)
+
+        self.lineEdit_samplingNumber.editingFinished.connect(self._updateSamplingNumber)
         self.lineEdit_convFactor.editingFinished.connect(self._updateConvFactor)
         self.comboBox_analogChannel.currentIndexChanged.connect(self._changeAnalogInput)
-        self._updateStepDelay()
+        self._updateSamplingNumber()
         self._updateConvFactor()
         self._startAnalogInput()
 
     def setDataParams(self, Xdim, Ydim):
         self.dim = (Xdim,Ydim)
         self.imageMap = np.zeros(self.dim)
-        self.counterBuffer = deque([],maxlen=100)
         logger.info("Counter got data params")
 
     def getDataDuringScan(self, indexPos):
-        time.sleep(self.stepDelay) #secondss
-        singleValue = self._acquireData()
-        self._setPixelData(indexPos, singleValue)
+        mean = self._integrateCounts() #time delay in seconds
+        self._setPixelData(indexPos, mean)
 
         imageData = self._getIntensityMap()
         curveData = self._getDataBuffer()
@@ -73,12 +73,17 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
             logger.exception("Error on closing Piezo")
 
     def getSingleShot(self):
-        singleShot = self._acquireData()
-        self.lcdNumber_counterValue.display(singleShot)
-
-        return None
+        pass
 
     ### -------
+    def _integrateCounts(self):
+        cumulative = 0
+        for i in range(self.samplingNumber):#while time.time() < (current_time + interval):
+            cumulative += self._acquireData()*self.convFactor
+
+        mean = cumulative/self.samplingNumber
+        return mean
+
     def _startAnalogInput(self):
         try:
             self.task = nidaqmx.Task()
@@ -97,13 +102,12 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
         self._startAnalogInput()
 
     def _setPixelData(self, pos, value):
-        value = value/self.convFactor
         self.imageMap[pos[0]][pos[1]] = value
         self.counterBuffer.append(value)
         self.lcdNumber_counterValue.display(value)
 
-    def _updateStepDelay(self):
-        self.stepDelay = float(self.lineEdit_stepDelay.text())/1000
+    def _updateSamplingNumber(self):
+        self.samplingNumber = int(float(self.lineEdit_samplingNumber.text()))
 
     def _updateConvFactor(self):
         self.convFactor = float(self.lineEdit_convFactor.text())

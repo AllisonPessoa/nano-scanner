@@ -30,12 +30,7 @@ class DataHandler(ABC):
     def getRawData(self):
         """ Returns the numpy data structure to be saved """
         pass
-
-    @abstractmethod
-    def getSingleShot(self):
-        """ Returns a single measurement by the instrument """
-        pass
-
+        
     @abstractmethod
     def close(self):
         """ Close the communication with the instruments securetely """

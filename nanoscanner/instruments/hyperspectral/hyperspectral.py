@@ -61,10 +61,6 @@ class Hyperspectral(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     def getRawData(self):
         return (self.wavelength, self.hyperData)
 
-    def getSingleShot(self):
-        singleShot = self._acquireData()
-        return singleShot
-
     def close(self):
         logger.info("Hyperspectral closed")
 

@@ -239,28 +239,33 @@ class Model(QtCore.QObject):
             self.emitError.emit(message)
             logger.error(message)
 
-    def singleCaptureMode(self):
-        if self.dataHandler is not None:
-            try:
-                singleShot = self.dataHandler.getSingleShot()
-                if singleShot is not None:
-                    self.emitCurveData.emit(singleShot)
-            except Exception as erro:
-                errorMessage = erro.args[0]
-                self.emitError.emit('Error on data handler: '+str(errorMessage))
-        else:
-            self.emitError.emit('Not selected a dataHandler')
-
-    def startRecordMode(self, mode):
+    def getCurrentDataHandler(self, mode):
         scanModes = self.getScanModes()
         modeKey = next(x for x in scanModes.keys() if x == mode)
-        self.dataHandler = scanModes[modeKey]
+        dataHandler = scanModes[modeKey]
+        dataHandler.setDataParams(1,1)
+        return dataHandler
+
+    def singleCaptureMode(self, mode):
+        dataHandler = self.getCurrentDataHandler(mode)
+        try:
+            imageData, curveData = dataHandler.getDataDuringScan((0,0))
+            if curveData is not None:
+                self.emitCurveData.emit(curveData)
+        except Exception as erro:
+            errorMessage = erro.args[0]
+            self.emitError.emit('Error on data handler: '+str(errorMessage))
+            logger.exception("Error on acquiring data")
+
+    def startRecordMode(self, mode):
+        dataHandler = self.getCurrentDataHandler(mode)
         logger.info("Recording Started")
 
         while self.recording == True:
             try:
-                not_used, curveData = self.dataHandler.getDataDuringScan((0,0))
-                self.emitCurveData.emit(curveData)
+                imageData, curveData = dataHandler.getDataDuringScan((0,0))
+                if curveData is not None:
+                    self.emitCurveData.emit(curveData)
 
             except Exception as erro:
                 self.recording=False

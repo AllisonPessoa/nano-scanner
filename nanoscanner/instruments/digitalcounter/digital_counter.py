@@ -55,10 +55,6 @@ class DigitalCounter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     def getRawData(self):
         return self.imageMap
 
-    def getSingleShot(self):
-        singleShot = self._acquireData()
-        self.lcdNumber_counterValue.display(singleShot)
-
     def close(self):
         if self.paired == True:
             self.device.close()
