@@ -4,6 +4,8 @@
 
 NanoScanner is an environment to perform scan imaging of micro and nanosystems. It executes sample pixel-by-pixel scanning, with nanometric spatial resolution (depending on the translation stage), while acquires information from any desired peripheral instrument that is measuring at real time, just requiring a simple script for each new instrument. This brings the versatility of building images from numerous physical parameters. 
 
+<img src="nanoscanner_frontpage.png" alt="CoverImage" width="100%" title="Cover Image">
+
 Applications performed with the Software includes:
 * Scanning Optical Microscopy;
 * Hyperspectral Optical Microscopy;
