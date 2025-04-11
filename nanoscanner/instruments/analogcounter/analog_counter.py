@@ -30,8 +30,8 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        file_layout = 'counter_layout.ui'  # always use slash
-        file_layout_path = pkg_resources.resource_filename('instruments.counter', file_layout)
+        file_layout = 'analog_counter_layout.ui'  # always use slash
+        file_layout_path = pkg_resources.resource_filename('instruments.analogcounter', file_layout)
         loadUi(file_layout_path, self)
 
         self.counterBuffer = deque([],maxlen=100)
@@ -41,12 +41,12 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
         self.comboBox_analogChannel.currentIndexChanged.connect(self._changeAnalogInput)
         self._updateSamplingNumber()
         self._updateConvFactor()
-        self._startAnalogInput()
+        #self._startAnalogInput()
 
     def setDataParams(self, Xdim, Ydim):
         self.dim = (Xdim,Ydim)
         self.imageMap = np.zeros(self.dim)
-        logger.info("Counter got data params")
+        logger.info("Analog Counter got data params")
 
     def getDataDuringScan(self, indexPos):
         mean = self._integrateCounts() #time delay in seconds
@@ -63,11 +63,24 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
     def getRawData(self):
         return self.imageMap
 
+    def start(self):
+        try:
+            self.task = nidaqmx.Task()
+            channel = self.comboBox_analogChannel.currentText()
+            self.task.ai_channels.add_ai_voltage_chan(channel)
+            self.task.start()
+            self.label_deviceStatus.setText("Connected. Channel " + channel)
+            logger.info("Analog Counter Started - channel " + channel)
+
+        except Exception as erro:
+            self.label_deviceStatus.setText("Disconnected. - Erro. See Log File")
+            logger.exception("Error on starting Piezo")
+
     def close(self):
         try:
             self.task.stop()
             self.task.close()
-            logger.info("Counter Closed")
+            logger.info("Analog Counter Closed")
         except Exception as erro:
             self.label_deviceStatus.setText("Device not propery closed. " + erro)
             logger.exception("Error on closing Piezo")
@@ -84,22 +97,9 @@ class Counter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
         mean = cumulative/self.samplingNumber
         return mean
 
-    def _startAnalogInput(self):
-        try:
-            self.task = nidaqmx.Task()
-            channel = self.comboBox_analogChannel.currentText()
-            self.task.ai_channels.add_ai_voltage_chan(channel)
-            self.task.start()
-            self.label_deviceStatus.setText("Connected. Channel " + channel)
-            logger.info("Counter Started - channel " + channel)
-
-        except Exception as erro:
-            self.label_deviceStatus.setText("Disconnected. - Erro. See Log File")
-            logger.exception("Error on starting Piezo")
-
     def _changeAnalogInput(self):
         self.close()
-        self._startAnalogInput()
+        self.start()
 
     def _setPixelData(self, pos, value):
         self.imageMap[pos[0]][pos[1]] = value

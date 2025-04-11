@@ -32,7 +32,6 @@ class Hyperspectral(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
         loadUi(file_layout_path, self)
 
         self.toolButton_selectFolder.clicked.connect(self._selectFolder)
-        logger.info("Hyperspectral Started")
 
     def setDataParams(self, Xdim, Ydim):
         if self.lineEdit_fileFolder.text() == '':
@@ -63,6 +62,9 @@ class Hyperspectral(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
 
     def close(self):
         logger.info("Hyperspectral closed")
+    
+    def start(self):
+        logger.info("Hyperspectral Started")
 
     ### --------
     def _selectFolder(self):

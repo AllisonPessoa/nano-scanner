@@ -49,6 +49,12 @@ class Model(QtCore.QObject):
 
     def getScanModes(self):
         return self.scanModes
+    
+    def setupAcquisitionMode(self, mode):
+        if self.dataHandler is not None: self.dataHandler.close()
+        modeKey = next(x for x in self.scanModes.keys() if x == mode)
+        self.dataHandler = self.scanModes[modeKey]
+        self.dataHandler.start()
 
     def _roundToAxis(self, value, stepSize):
         if (value % stepSize) <= int(stepSize/2):
@@ -77,9 +83,7 @@ class Model(QtCore.QObject):
         scanPath, indexScanPath = self._calculateSteps() ##Calculate previously the scan path
         totalScanLen = self.scanNumSteps['X']*self.scanNumSteps['Y']
 
-        scanModes = self.getScanModes()
-        modeKey = next(x for x in scanModes.keys() if x == mode)
-        self.dataHandler = scanModes[modeKey]
+        self.setupAcquisitionMode(mode)
         self.dataHandler.setDataParams(self.scanNumSteps['X'], \
                                        self.scanNumSteps['Y'])
 
@@ -111,9 +115,10 @@ class Model(QtCore.QObject):
     def endApplication(self):
         self.drivePiezo({'X': 0, 'Y': 0})
         self.piezo.close()
-        scanModes = self.getScanModes()
-        for instrum in scanModes.keys():
-            scanModes[instrum].close()
+        self.dataHandler.close()
+        #scanModes = self.getScanModes()############
+        #for instrum in scanModes.keys():
+        #    scanModes[instrum].close()
 
     def finishScan(self):
         self.emitFinished.emit()
@@ -239,17 +244,13 @@ class Model(QtCore.QObject):
             self.emitError.emit(message)
             logger.error(message)
 
-    def getCurrentDataHandler(self, mode):
-        scanModes = self.getScanModes()
-        modeKey = next(x for x in scanModes.keys() if x == mode)
-        dataHandler = scanModes[modeKey]
-        dataHandler.setDataParams(1,1)
-        return dataHandler
-
     def singleCaptureMode(self, mode):
-        dataHandler = self.getCurrentDataHandler(mode)
+        self.setupAcquisitionMode(mode)
+        self.dataHandler.setDataParams(1,1)
+        logger.info("Singleshot captured")
+        
         try:
-            imageData, curveData = dataHandler.getDataDuringScan((0,0))
+            imageData, curveData = self.dataHandler.getDataDuringScan((0,0))
             if curveData is not None:
                 self.emitCurveData.emit(curveData)
         except Exception as erro:
@@ -258,12 +259,13 @@ class Model(QtCore.QObject):
             logger.exception("Error on acquiring data")
 
     def startRecordMode(self, mode):
-        dataHandler = self.getCurrentDataHandler(mode)
+        self.setupAcquisitionMode(mode)
+        self.dataHandler.setDataParams(1,1)
         logger.info("Recording Started")
 
         while self.recording == True:
             try:
-                imageData, curveData = dataHandler.getDataDuringScan((0,0))
+                imageData, curveData = self.dataHandler.getDataDuringScan((0,0))
                 if curveData is not None:
                     self.emitCurveData.emit(curveData)
 

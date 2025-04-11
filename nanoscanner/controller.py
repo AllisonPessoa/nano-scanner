@@ -74,7 +74,7 @@ class Controller():
         self._view.pushButton_exportData.clicked.connect(self.exportData)
 
         self._view.pushButton_setCenter.clicked.connect(self._model.setScanCenter)
-        self._view.pushButton_capture.clicked.connect(self._model.singleCaptureMode)
+        self._view.pushButton_capture.clicked.connect(self.singleCaptureMode)
 
 
         ########################
@@ -124,14 +124,18 @@ class Controller():
     ############
     ### SCAN ###
     ############
-
+    
+    def getAcquisionMode(self):
+        mode = self._view.tabWidget_modes.tabText(\
+                     self._view.tabWidget_modes.currentIndex())
+        return mode
+    
     def startScan(self):
         if self._view.pushButton_startMeasurement.isChecked() == True:
             self.executionThread = QtCore.QThread()
             self._model.moveToThread(self.executionThread)
             #Starting
-            mode = self._view.tabWidget_modes.tabText(\
-                                 self._view.tabWidget_modes.currentIndex())
+            mode = self.getAcquisionMode()
             self._model.scanAbort = False
             self._view.startScan()
             self.executionThread.started.connect(lambda: self._model.startScan(mode))
@@ -151,12 +155,15 @@ class Controller():
         self.executionThread = QtCore.QThread()
         self._model.moveToThread(self.executionThread)
         #Starting
-        mode = self._view.tabWidget_modes.tabText(\
-                             self._view.tabWidget_modes.currentIndex())
+        mode = self.getAcquisionMode()
         self._model.recording = True
         self._view.startRecordMode()
         self.executionThread.started.connect(lambda: self._model.startRecordMode(mode))
         self.executionThread.start()
+
+    def singleCaptureMode(self):
+        mode = self.getAcquisionMode()
+        self._model.singleCaptureMode(mode)
 
     def stopRecordMode(self):
         self._model.recording = False

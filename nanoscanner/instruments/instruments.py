@@ -1,12 +1,14 @@
 # INSTRUMENTS
 from instruments.hyperspectral import hyperspectral
-from instruments.counter import counter
+from instruments.analogcounter import analog_counter
 from instruments.digitalcounter import digital_counter
+from instruments.arduinocounter import arduino_counter
 
 def getScanModes():
     scanModes = {
-        "Counter": counter.Counter(),
+        "DigitalCounter": digital_counter.Counter(),
+        #"AnalogCounter": analog_counter.Counter(),
         "Hyperspectral": hyperspectral.Hyperspectral(),
-        "DigitalCounter": digital_counter.DigitalCounter()
+        "ArduinoCounter": arduino_counter.DigitalCounter(),
     }
     return scanModes
