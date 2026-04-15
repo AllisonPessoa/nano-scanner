@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1375</width>
+    <width>1435</width>
     <height>773</height>
    </rect>
   </property>
@@ -802,8 +802,8 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>1120</x>
       <y>20</y>
-      <width>231</width>
-      <height>311</height>
+      <width>261</width>
+      <height>371</height>
      </rect>
     </property>
     <property name="tabPosition">
@@ -936,7 +936,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>1120</x>
-      <y>340</y>
+      <y>400</y>
       <width>31</width>
       <height>31</height>
      </rect>
@@ -953,7 +953,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>1170</x>
-      <y>340</y>
+      <y>400</y>
       <width>31</width>
       <height>31</height>
      </rect>
@@ -973,7 +973,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>1220</x>
-      <y>340</y>
+      <y>400</y>
       <width>31</width>
       <height>31</height>
      </rect>
@@ -992,7 +992,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1375</width>
+     <width>1435</width>
      <height>21</height>
     </rect>
    </property>

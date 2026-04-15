@@ -11,6 +11,7 @@ import numpy as np
 
 from collections import deque
 import serial
+import serial.tools.list_ports
 
 from PyQt5.uic import loadUi
 from PyQt5 import QtWidgets
@@ -57,12 +58,18 @@ class DigitalCounter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
 
     def close(self):
         if self.paired == True:
-            self.device.close()
+            self.device.write("stop_cnt\n".encode())
+            #self.device.close()
             logger.info("Arduino Digital Counter Closed")
 
     def start(self):
-        pass
-        logger.info("Arduino Digital Counter Started")
+        if self.paired == True:
+            self._clearBuffer()
+            self.device.write("start_cnt\n".encode())
+            self.device.write("get_cnt\n".encode())
+            logger.info("Arduino Digital Counter Started")
+        else:
+            logger.info("Else")
 
     ### -------
     def _setPixelData(self, index_pos, value):
@@ -92,11 +99,13 @@ class DigitalCounter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
                 boudRate = int(self.lineEdit_boudRate.text())
 
                 try:
-                    self.device = serial.Serial(portDevice, boudRate)
+                    self.device = serial.Serial(portDevice, boudRate, timeout=5, write_timeout=5)
                     self.paired = True
                     self.pushButton_pair.setText("Unpair")
                     self.label_deviceStatus.setText("Connected.")
                     logger.info("Device " + portDescription + "connected.")
+
+                    self._setDeviceParams()
 
                 except Exception as erro:
                     self.paired = False
@@ -113,12 +122,15 @@ class DigitalCounter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
             self.label_deviceStatus.setText("Disconnected.")
 
     def _setDeviceParams(self):
-        stepDelay = float(self.lineEdit_stepDelay.text())*1000
+        stepDelay = self.lineEdit_stepDelay.text()
         try:
-            self.device.reset_output_buffer()
-            self.device.write(str("setparam("+str(int(stepDelay))+","+str(10)+","+str(1000)+","+str(1000)+","+str(0)+")").encode('utf-8'))
+            #self.device.reset_output_buffer()
+
+            text = "cnt_preesc " + stepDelay + "\n"
+            #self.device.write(text.encode())
+
             self.label_deviceStatus.setText("Params Set")
-            logger.info("Integration time to device: " + str(stepDelay) + ' us')
+            logger.info("Integration time to device: " + str(stepDelay) + ' ms')
         except Exception as erro:
             self._clearBuffer()
             error = erro.args[0]
@@ -130,15 +142,15 @@ class DigitalCounter(QtWidgets.QWidget, DataHandler, metaclass=FinalMeta):
         self.device.reset_output_buffer()
 
     def _acquireData(self):
-        self.device.reset_input_buffer()
+        #self.device.reset_input_buffer()
         raw_data = self.device.readline()
-        self.device.flush()
-        entryLine = raw_data.decode('utf-8')
+        #self.device.flush()
+        #entryLine = raw_data.decode('utf-8')
 
-        if entryLine[0] == 'A':
-            value = float(entryLine[1:])
+        #if entryLine[0] == 'A':
+        #    value = float(entryLine[1:])
 
-        return value
+        return int(raw_data)
 
     ### --------
 
